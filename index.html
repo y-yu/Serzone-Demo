@@ -8,20 +8,32 @@
 <body>
 <script>
 var Serzone = {};
-Serzone.view = {};
+Serzone.action = {};
 
-Serzone.view.changeSlide = {
-	eventType : "next",
-	init      : function (elem) {
-					var h = document.createElement("div");
-					h.innerHTML = "hogehoge"
-					console.log(elem);
-					elem.appendChild(h);
-					//elem.style.backgroundColor = "blue";
-				},
-	fire      : function (elem) {
-					elem.style.backgroundColor = "red";
+function arrayify (e) {
+	return Array.prototype.slice.call(e);
+}
+
+Serzone.action = {
+	changeSlide : {
+		type : "next",
+		init : function (slide, canvas) {
+			arrayify(canvas.childNodes).forEach(
+				function (c) {
+					canvas.removeChild(c);
 				}
+			);
+		},
+		fire : function (slide, canvas) {
+			canvas.appendChild(slide.body);
+		}
+	},
+
+	hoge : {
+		type : "hoge",
+		init : function () { return "hoge" },
+		fire : function () { }
+	}
 };
 </script>
 
@@ -32,18 +44,20 @@ Serzone.view.changeSlide = {
 
 	<p>@yoshimura_yuu</p>
 	
-	<!--
 	<section>
 		<p style="font-size: 80px;">It's a </p>
 		<p style="text-align: center; font-size: 60px;"><b>Presentation Framework</b></p>
 		<p style="text-align: center;">based on<p>
 		<p style="text-align: center; font-size: 100px;">HTML & CSS3</p>
 	</section>
-	-->
 </section>
 
 <section>
 	<h1>What is it?</h1>
+
+	<div class="step" action="hoge">
+		hogehoge
+	</div>
 </section>
 
 </div>

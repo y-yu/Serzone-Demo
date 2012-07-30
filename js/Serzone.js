@@ -1,5 +1,5 @@
 var Serzone = Serzone || {};
-Serzone.view = Serzone.view || {};
+Serzone.action = Serzone.action || {};
 
 (function () {
 	/*
@@ -10,32 +10,47 @@ Serzone.view = Serzone.view || {};
 	}
 
 	function byId (id, root) {
-		root = root | document;
+		root = root || document;
 		return root.getElementById(id);
 	}
 
 	function $ (selecter, root) {
-		root = root | document;
+		root = root || document;
 		return root.querySelector(selecter);
 	}
 
 	function $$ (selecter, root) {
-		root = root | document;
-		return root.querySelectorAll(selecter);
+		root = root || document;
+		return arrayify( root.querySelectorAll(selecter) );
 	}
+
+	function validate (object, type) {
+		if ( !(object instanceof type) ) {
+			throw new Error("Expected " + type + ", but " + object.constructor);
+		}
+	}
+
+	/*
+	 * Initialize
+	 */
+	var Canvas = document.createElement("div");
+	Canvas.classList.add("canvas");
+	byId("serzone").insertBefore(Canvas, byId("serzone").firstChild);
 
 	/*
 	 * CSS Class
 	 */
 	function CSS (elem) {
-		this.css = [];
-
-		this.css.push(elem.style);
-		this.elem = elem;
+		Object.defineProperties( this, {
+			elem : { value : elem, writable : true },
+			css  : { value : [],   writable : true }
+		});
 	}
 
 	CSS.prototype = {
 		get : function (num) {
+			num = num || -1;
+
 			return this.css[num];
 		},
 
@@ -50,191 +65,211 @@ Serzone.view = Serzone.view || {};
 		},
 
 		undo : function (num) {
-			// after
+			num = num || 1;
+
+			elem.style = css[num];
+			
+			css.pop();
 
 			return false;
-		}
-	}
-
-	/*
-	 * Step Class
-	 */
-	function Step (elem, name) {
-		this.elem   = elem;
-		this.name   = name || elem.getAttribute("action");
-		this.action = Object.create(Serzone.view[name]);
-
-		//this.action.init();
-	}
-
-	Step.prototype = {
-		init : function () {
-			return this.action.init(this.elem);
-		},
-
-		fire : function () {
-			return this.action.fire(this.elem);
 		}
 	};
 
 	/*
+	 * Step Class
+	 */
+	function Step (obj, name) {
+		Object.defineProperties( this, {
+			obj  : { value : obj,   writable : true  },
+			name : { value : name,  writable : false },
+			type : { value : Serzone.action[name].type, writable : false },
+			init : {
+				value : (function () {
+					return function (other) {
+						return Serzone.action[name].init(obj, Canvas, other);
+					};
+				})(),
+				writable : false
+			},
+			fire : {
+				value : (function (other) {
+					return function (other) {
+						return Serzone.action[name].fire(obj, Canvas, other);
+					};
+				})(),
+				writable : false
+			}
+		});
+
+		this.init(obj, Canvas);
+	}
+
+	/*
 	 * Slide Class
 	 */
-	function Slide (order, elem, depth) {
+	function Slide (order, elem, layer, parent) {
 		//parent, children, siblings : Array.<Slide>
-		this.order  = order;
-		this.elem   = elem;
-		//this.layer  = layer;
-		//this.parent = parent;
-		this.css    = new CSS(elem);
+		Object.defineProperties( this, {
+			order    : { value : order,  writable : false },
+			elem     : { value : elem,   writable : false },
+			layer    : { value : layer,  writable : false },
+			parent   : { value : parent, writable : false },
+			steps    : { value : [],     writable : false },
 
-		var body   = document.createElement("div");
-		body.classList.add("slide");
+			children : (function () {
+				var value = [];
 
+				return {
+					set : function (slide) {
+						value = value.concat(slide).sort(
+							function (a, b) {
+								return a.order > b.order;
+							}
+						);
+					},
+
+					get : function () {
+						return value;
+					}
+				};
+			})(),
+
+			siblings : (function () {
+				var value = [];
+				
+				return {
+					set : function (slide) {
+						value = value.concat(slide).sort(
+							function (a, b) {
+								return a.order > b.order;
+							}
+						);
+					},
+
+					get : function () {
+						return value;
+					}
+				};
+			})(),
+
+			css : {
+				value : new CSS(elem),
+				writable : true,
+				configurable : true
+			},
+			body : {
+				value : document.createElement("div"),
+				writable : true,
+				configurable : true
+			}
+		} );
+
+		this.body.classList.add("slide");
+
+		var self = this;
 		arrayify(elem.childNodes).filter( function (child) {
 			return child.tagName != "SECTION";
 		} ).forEach( function (child) {
 			if (child.className == "step") {
-				this.steps.push( new Step(child) );
+				self.steps.push( new Step( child, child.getAttribute("action") ) );
 			}
 			elem.removeChild(child);
-			body.appendChild(child);
+			self.body.appendChild(child);
 		});
-		this.body = body;
-
-		this.children = [];
-		this.siblings = [];
 	}
 
 	Slide.prototype = {
-		getOrder : function () {
-			return this.order;
-		},
 
-		getChildren : function () {
-			return this.children;
-		},
 
-		setChild : function (slide) {
-			// slide : Slide
-			this.children.push(slide).sort(
-				function (a, b) {
-					return a.getOrder() < b.getOrder();
-				}
-			);
-		},
-
-		getParent : function () {
-			return this.parent;
-		},
-
-		getNthChild : function (num) {
-			return this.children[num];
-		},
-
-		getSiblings : function () {
-			return this.siblings;
-		},
-
-		setSibling : function (slide) {
-			// slide : Slide
-			this.siblings.push(slide).sort(
-				function (a, b) {
-					return a.getOrder() < b.getOrder();
-				}
-			);
-		},
-
-		getSteps : function () {
-			return this.steps;
-		}
-	}
+	};
 
 	/*
 	 * Parser Class
 	 */
 	function Parser () {
-		this.slides = [];
-		this.steps  = [];	// Array.<Step>
+		Object.defineProperties( this, {
+			slides : { value : [], writable : true },
+			steps  : { value : [], writable : true }
+		});
 	}
 
 	Parser.prototype = {
-		//setOrder : function (canvas) {
-		//	arrayify(canvas.getElementsByTagName).forEach(
-		//		function (e, idx) {
-		//		}
-		//	);
-		//},
-		//
-		//// 最下スライド（葉）が0となる。
-		//parseSlides : function (section, layer) {
-		//	// ある階層の子要素を検索
-		//	var children = arrayify(section.childNodes).filter(
-		//		function ( child ) {
-		//			return child.tagName == "SECTION";
-		//		}
-		//	);
+		slideParser : function () {
+			function parseSlides (section, order, layer, parent) {
+				layer  = layer  || 0;
+				parent = parent || undefined;
 
-		//	// 深さの初期値
-		//	layer = layer || -1;
+				var current = new Slide(order, section, layer, parent);
+				
+				var children = arrayify(section.childNodes).filter(
+					function (child) {
+						return child.tagName == "SECTION";
+					}
+				).map(
+					function (child, i) {
+						var o = parseSlides(child, order+1, layer+1, current);
+						order = o.order;
+		
+						return o.children;
+					}
+				);
 
-		//	// 現在の要素の下にsectionがあれば
-		//	if (children.length > 0) {
-		//		layer = children.forEach(
-		//			function (c) {
-		//				return this.parseSlides(child, layer);
-		//			}
-		//		).sort(
-		//			function (a, b) {
-		//				return a < b;
-		//			}
-		//		).shift() || 0;
-		//	}
+				children.forEach(
+					function (child, i, children) {
+						child.siblings = children.slice(0, i);
+						child.siblings = children.slice(i + 1);
+					}
+				);
 
-		//	layer++;
+				current.children = children;
 
-		//	children.forEach(
-		//		function ( childSection ) {
-		//			var childSection = new Slide(idx, c, layer);
-		//		}
-		//	);
+				return {
+					order    : order,
+					children : current,
+				};
+			}
 
-		//	return layer;
-		//},
+			this.slides = arrayify(byId("serzone").childNodes).filter(
+				function (child) {
+					return child.tagName == "SECTION";
+				}
+			).map(
+				function (section, i, serzone) {
+					var order = (i == 0 ? 0 : $$("section", serzone[i-1]).length + 1);
 
-		//execute : function (serzone) {
-		//	// after
-
-		//	return {
-		//		slides : "aa", // after
-		//		steps  : "'''", // after
-		//	};
-		//},
-
-		// beta edition
-		parse : function () {
-			var self = this;
-			arrayify(document.getElementsByTagName("SECTION")).forEach(
-				function (e, i) {
-					self.slides.push(new Slide(i, e, 0));
-					self.steps.push(new Step(e, "changeSlide"));
+					return parseSlides(section, order).children;
 				}
 			);
 		},
+		
+		stepParser : function () {
+			var self = this;
 
-		getSlides : function () {
-			return this.slides;
+			function parseSteps (slide) {
+				self.steps = self.steps.concat(slide.steps);
+				self.steps.push( new Step(slide, "changeSlide") );
+
+				slide.children.forEach(
+					function (c) {
+						parseSteps(c);
+					}
+				);
+			}
+
+			this.slides.forEach( function (e) { parseSteps(e); });
 		},
 
-		getSteps  : function () {
-			return this.steps;
+		// beta edition
+		parse : function () {
+			this.slideParser();
+			this.stepParser();
 		}
-	}
+	};
 
 	// 初期化
 	Serzone.parser = new Parser;
 	Serzone.parser.parse();
 
-	Serzone.slides = Serzone.parser.getSlides();
-	Serzone.steps  = Serzone.parser.getSteps();
+	Serzone.slides = Serzone.parser.slides;
+	Serzone.steps  = Serzone.parser.steps;
 })();
