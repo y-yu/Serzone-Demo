@@ -35,7 +35,7 @@ Serzone.action = Serzone.action || {};
 	 */
 	var Canvas = document.createElement("div");
 	Canvas.classList.add("canvas");
-	byId("serzone").insertBefore(Canvas, byId("serzone").firstChild);
+	document.body.insertBefore(Canvas, byId("serzone"));
 
 	/*
 	 * CSS Class
@@ -96,8 +96,6 @@ Serzone.action = Serzone.action || {};
 				writable : false
 			}
 		});
-
-		this.init(obj, Canvas);
 	}
 
 	/*
@@ -328,24 +326,16 @@ Serzone.action = Serzone.action || {};
 	function Spike (steps) {
 		Object.defineProperties(this, {
 			steps : { value : steps, writable : false, configurable : false },
-			next  : (function () {
-				var count = 0;
+			count : { value : 0,     writable : true,  configurable : false },
+			next  : {
+				value : function (e) {
+					this.steps[this.count].fire(e);
+					this.count++;
+					this.steps[this.count].init(e);
+				},
 
-				return {
-					get : function () {
-						var self = this;
-
-						return function (e) {
-							self.steps[count].init(e);
-							self.steps[count].fire(e);
-
-							count++;
-						};
-					},
-
-					configurable : false
-				};
-			})(),
+				configurable : false
+			},
 
 			history : (function () {
 				var value = [];
@@ -378,6 +368,8 @@ Serzone.action = Serzone.action || {};
 				configurable : false
 			}
 		});
+	
+		this.steps[0].init();
 	}
 
 	Spike.prototype = {
@@ -385,12 +377,8 @@ Serzone.action = Serzone.action || {};
 			// next
 			var self = this;
 			this.eventType.next.mouse.forEach(
-
 				function (e) {
-					console.log(e);
 					document.body.addEventListener(e, function () {
-						console.log(self.next);
-						console.log("spike next!");
 						self.next();
 					});
 				}

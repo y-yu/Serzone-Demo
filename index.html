@@ -18,15 +18,14 @@ Serzone.action = {
 	changeSlide : {
 		type : "next",
 		init : function (slide, canvas, other) {
-			arrayify(canvas.childNodes).forEach(
-				function (c) {
-					canvas.removeChild(c);
-				}
-			);
-			console.log(other);
+			if (slide.order == 0) {
+				document.getElementById("serzone").style.color = "white";
+			}
+
+			canvas.appendChild(slide.body);
 		},
 		fire : function (slide, canvas) {
-			canvas.appendChild(slide.body);
+			canvas.removeChild(slide.body);
 		}
 	},
 
@@ -59,9 +58,12 @@ Serzone.action = {
 		<p style="text-align: center;">based on<p>
 		<p style="text-align: center; font-size: 100px;">HTML & CSS3</p>
 	</section>
+
+	<!--
 	<div class="step" action="hoge">
 		T
 	</div>
+	-->
 </section>
 
 </div>
