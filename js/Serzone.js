@@ -203,7 +203,7 @@ Serzone.action = Serzone.action || {};
 					return s.order > this.order;
 				});
 
-				return (candidates.length != 0 ? candidates[0] : null);
+				return (sandidates.length != 0 ? candidates[0] : null);
 			}
 		},
 
@@ -328,34 +328,24 @@ Serzone.action = Serzone.action || {};
 	function Spike (steps) {
 		Object.defineProperties(this, {
 			steps : { value : steps, writable : false, configurable : false },
-			count : (function () {
+			next  : (function () {
 				var count = 0;
 
 				return {
 					get : function () {
-						return count;
-					},
+						var self = this;
 
-					set : function (num) {
-						count = num;
+						return function (e) {
+							self.steps[count].init(e);
+							self.steps[count].fire(e);
+
+							count++;
+						};
 					},
 
 					configurable : false
 				};
 			})(),
-
-			next  : {
-				get : function () {
-					var self = this;
-
-					return function (e) {
-						self.steps.init(e);
-						self.steps.fire(e);
-					};
-				},
-
-				configurable : false
-			},
 
 			history : (function () {
 				var value = [];
@@ -376,7 +366,7 @@ Serzone.action = Serzone.action || {};
 			eventType : {
 				value : {
 					next : {
-						mouse   : ["ocClick", "onDblClick"],
+						mouse   : ["click"],
 						keycode : [32, 39]
 					},
 					previous : {
@@ -395,10 +385,13 @@ Serzone.action = Serzone.action || {};
 			// next
 			var self = this;
 			this.eventType.next.mouse.forEach(
+
 				function (e) {
-					Canvas.addEventListener(e, function () {
-						self.next.init();
-						self.next.fire();
+					console.log(e);
+					document.body.addEventListener(e, function () {
+						console.log(self.next);
+						console.log("spike next!");
+						self.next();
 					});
 				}
 			);
@@ -412,5 +405,6 @@ Serzone.action = Serzone.action || {};
 	Serzone.slides = Serzone.parser.slides;
 	Serzone.steps  = Serzone.parser.steps;
 
-	//Serzone.spike  = new Spike(Serzone.steps)
+	Serzone.spike  = new Spike(Serzone.steps);
+	Serzone.spike.addEvent();
 })();
