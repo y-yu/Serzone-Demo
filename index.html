@@ -17,12 +17,13 @@ function arrayify (e) {
 Serzone.action = {
 	changeSlide : {
 		type : "next",
-		init : function (slide, canvas) {
+		init : function (slide, canvas, other) {
 			arrayify(canvas.childNodes).forEach(
 				function (c) {
 					canvas.removeChild(c);
 				}
 			);
+			//console.log(other);
 		},
 		fire : function (slide, canvas) {
 			canvas.appendChild(slide.body);
