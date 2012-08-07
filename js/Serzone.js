@@ -35,7 +35,6 @@ Serzone.action = Serzone.action || {};
 	 */
 	var Canvas = document.createElement("div");
 	Canvas.classList.add("canvas");
-	document.body.insertBefore(Canvas, byId("serzone"));
 
 	/*
 	 * CSS Class
@@ -68,7 +67,6 @@ Serzone.action = Serzone.action || {};
 			num = num || 1;
 
 			elem.style = css[num];
-			
 			css.pop();
 
 			return false;
@@ -76,13 +74,132 @@ Serzone.action = Serzone.action || {};
 	};
 
 	/*
+	 * Tree Class
+	 */
+	function Tree () {
+		Object.defineProperties(this, {
+			$order    : { value : undefined, enumerable : false, configurable : false },
+			$parent   : { value : undefined, enumerable : false, configurable : false },
+			$children : { value : [],        enumerable : false, configurable : false },
+			$siblings : { value : [],        enumerable : false, configurable : false },
+			$nextTree : { value : undefined, enumerable : false, configurable : false }
+		});
+	}
+
+	Object.defineProperties(Tree.prototype, {
+		order : {
+			get : function () {
+				return this.$order;
+			},
+
+			set : function (order) {
+				this.$order = order;
+			},
+
+			configurable : false
+		},
+
+		parent : {
+			get : function () {
+				return this.$parent
+			},
+
+			set : function (parent) {
+				this.$parent = parent;
+			},
+
+			configurable : false
+		},
+
+		children : { 
+			get : function () {
+				return this.$children;
+			},
+
+			set : function (newChildren) {
+				this.$children = this.$children.concat(newChildren).sort(
+					function (a, b) { return a.order > b.order; }
+				);
+			},
+
+			configurable : false
+		},
+
+		siblings : {
+			get : function () {
+				return value;
+			},
+
+			set : function (newSiblings) {
+				this.$siblings = this.$siblings.concat(newSiblings).sort(
+					function (a, b) { return a.order > b.order; }
+				);
+			},
+
+			configurable : false
+		},
+
+		nextTree : {
+			get : function () {
+				return this.$nextTree;
+			},
+
+			set : function (f) {
+				this.$nextTree = f;
+			},
+
+			configurable : false
+		},
+
+		nextSibling : {
+			get : function () {
+				var candidates = this.siblings.filter(
+					function (s) { return s.order > this.order; }
+				);
+
+				return (candidates.length != 0 ? candidates[0] : null);
+			},
+
+			configurable : false
+		},
+
+		next : {
+			get : function () {
+				if (this.children.length != 0) {
+					return this.children[0];
+				}
+
+				return (function findNext (self) {
+					if ( self.nextSibling !=  null ) {
+						return self.nextSibling;
+					}
+					else if ( self.parent != null ) {
+						return findNext(self.parent);
+					}
+					else if ( self.nextTree != null ) {
+						return self.nextTree;
+					}
+					else {
+						return null;
+					}
+				})(this);
+			},
+
+			configurable : false
+		}
+	});
+
+
+	/*
 	 * Step Class
 	 */
+
 	function Step (obj, name) {
 		Object.defineProperties( this, {
-			obj  : { value : obj,   writable : true,  configurable : false },
-			name : { value : name,  writable : false, configurable : false },
-			type : { value : Serzone.action[name].type, writable : false },
+			obj   : { value : obj,   writable : true,  configurable : false },
+			name  : { value : name,  writable : false, configurable : false },
+			type  : { value : Serzone.action[name].type, writable : false, configurable : false },
+
 			init : {
 				value : function (other) {
 					return Serzone.action[name].init(obj, Canvas, other);
@@ -98,73 +215,17 @@ Serzone.action = Serzone.action || {};
 		});
 	}
 
+	Step.prototype = new Tree();
+
 	/*
 	 * Slide Class
 	 */
-	function Slide (elem, order, layer, parent) {
-		//parent, children, siblings : Array.<Slide>
+	function Slide (elem, layer) {
 		Object.defineProperties( this, {
-			order    : { value : order,  writable : false, configurable : false },
 			elem     : { value : elem,   writable : false, configurable : false },
 			layer    : { value : layer,  writable : false, configurable : false },
-			parent   : { value : parent, writable : false, configurable : false },
 			steps    : { value : [],     writable : false, configurable : false },
 
-			children : (function () {
-				var value = [];
-
-				return {
-					set : function (slide) {
-						value = value.concat(slide).sort(
-							function (a, b) {
-								return a.order > b.order;
-							}
-						);
-					},
-
-					get : function () {
-						return value;
-					},
-					
-					configurable : false
-				};
-			})(),
-
-			siblings : (function () {
-				var value = [];
-				
-				return {
-					set : function (slide) {
-						value = value.concat(slide).sort(
-							function (a, b) {
-								return a.order > b.order;
-							}
-						);
-					},
-
-					get : function () {
-						return value;
-					},
-
-					configurable : false
-				};
-			})(),
-
-			nextForestFirstSlide : (function () {
-				var value = function () { return null; };
-
-				return {
-					get : function () {
-						return value();
-					},
-
-					set : function (f) {
-						value = f;
-					}
-				};
-			})(),
-
-		
 			css : {
 				value : new CSS(elem),
 				writable : true,
@@ -180,54 +241,14 @@ Serzone.action = Serzone.action || {};
 		this.body.classList.add("slide");
 
 		var self = this;
-		arrayify(elem.childNodes).filter(
-			function (child) {
-				return child.tagName != "SECTION";
-			}
-		).forEach(
-			function (child) {
-				if (child.className == "step") {
-					self.steps.push( new Step( child, child.getAttribute("action") ) );
-				}
-				self.body.appendChild(child.cloneNode(true));
-			}
-		);
+		arrayify(elem.childNodes).filter( function (child) {
+			return child.tagName != "SECTION";
+		}).forEach( function (child) {
+			self.body.appendChild(child.cloneNode(true));
+		});
 	}
 
-	Object.defineProperties( Slide.prototype, {
-		nextSibling : {
-			get : function () {
-				var candidates = this.siblings.filter( function (s) {
-					return s.order > this.order;
-				});
-
-				return (sandidates.length != 0 ? candidates[0] : null);
-			}
-		},
-
-		nextSlide : {
-			get : function () {
-				if (this.children.length != 0) {
-					return this.children[0];
-				}
-
-				return (function findNextSlide (self) {
-					if ( self.nextSibling !=  null ) {
-						return self.nextSibling;
-					}
-					else if ( self.parent != null ) {
-						return findNextSlide(self.parent);
-					}
-					else if ( self.nextForestFirstSlide != null ) {
-						return self.nextForestFirstSlide;
-					}
-					else {
-						return null;
-					}
-				})(this);
-			}
-		}
-	});
+	Slide.prototype = new Tree();
 
 	/*
 	 * Parser Class
@@ -245,7 +266,9 @@ Serzone.action = Serzone.action || {};
 				layer  = layer  || 0;
 				parent = parent || null;
 
-				var current = new Slide(section, order, layer, parent);
+				var current    = new Slide(section, layer);
+				current.order  = order;
+				current.parent = parent;
 				
 				var children = arrayify(section.childNodes).filter(
 					function (child) {
@@ -287,7 +310,7 @@ Serzone.action = Serzone.action || {};
 					var slideTree = parseSlides(section, order).slides;
 					
 					if (i < serzoneChildren.length - 1) {
-						slideTree.nextForestFirstSlide = function () {
+						slideTree.nextTree = function () {
 							return self.slides[i+1];
 						};
 					}
@@ -327,31 +350,29 @@ Serzone.action = Serzone.action || {};
 		Object.defineProperties(this, {
 			steps : { value : steps, writable : false, configurable : false },
 			count : { value : 0,     writable : true,  configurable : false },
-			next  : {
-				value : function (e) {
-					this.steps[this.count].fire(e);
-					this.count++;
-					this.steps[this.count].init(e);
-				},
+			history : { value : [], writable : true, configurable : false },
 
+			next : {
+				value : function (e) {
+					if (this.count < this.history.length - 1) {
+						document.body.removeChild(this.history[this.count]);
+						this.count++;
+						document.body.insertBefore(this.history[this.count], byId("serzone"));
+					}
+				},
 				configurable : false
 			},
 
-			history : (function () {
-				var value = [];
-
-				return {
-					get : function () {
-						return value;
-					},
-
-					set : function (e) {
-						value = value.concat(e);
-					},
-
-					configurable : false
-				};
-			})(),
+			previous : {
+				value : function (e) {
+					if (this.count > 0) {
+						document.body.removeChild(this.history[this.count]);
+						this.count--;
+						document.body.insertBefore(this.history[this.count], byId("serzone"));
+					}
+				},
+				configurable : false
+			},
 
 			eventType : {
 				value : {
@@ -370,10 +391,23 @@ Serzone.action = Serzone.action || {};
 		});
 	
 		this.steps[0].init();
+		this.history.push( Canvas.cloneNode(true) );
+
+		var self = this;
+		this.steps.forEach( function (e, idx, steps) {
+			e.fire();
+
+			if (idx < steps.length - 1) {
+				steps[idx+1].init();
+			}
+			self.history.push( Canvas.cloneNode(true) );
+		});
+
+		document.body.insertBefore(self.history[self.count], byId("serzone"));
 	}
 
 	Spike.prototype = {
-		addEvent : function () {
+		init : function () {
 			// next
 			var self = this;
 			this.eventType.next.mouse.forEach(
@@ -383,6 +417,13 @@ Serzone.action = Serzone.action || {};
 					});
 				}
 			);
+
+			document.body.addEventListener("keypress", function(e) {
+				console.log(e.keyCode);
+				if (self.eventType.next.keycode.indexOf(e.keyCode) > -1) {
+					self.next();
+				}
+			});
 		}
 	};
 
@@ -394,5 +435,7 @@ Serzone.action = Serzone.action || {};
 	Serzone.steps  = Serzone.parser.steps;
 
 	Serzone.spike  = new Spike(Serzone.steps);
-	Serzone.spike.addEvent();
+	Serzone.spike.init();
+
+	document.body.insertBefore(Canvas, byId("serzone"));
 })();
