@@ -1,3 +1,5 @@
+"use strict";
+
 var Serzone = Serzone || {};
 Serzone.action = Serzone.action || {};
 
@@ -76,20 +78,24 @@ Serzone.action = Serzone.action || {};
 	/*
 	 * Tree Class
 	 */
-	function Tree () {
+	function Tree (order, parent) {
 		Object.defineProperties(this, {
-			$order    : { value : undefined, enumerable : false, configurable : false },
-			$parent   : { value : undefined, enumerable : false, configurable : false },
-			$children : { value : [],        enumerable : false, configurable : false },
-			$siblings : { value : [],        enumerable : false, configurable : false },
-			$nextTree : { value : undefined, enumerable : false, configurable : false }
+			$order    : { value : order,     writable : true, enumerable : false, configurable : false },
+			$parent   : { value : parent,    writable : true, enumerable : false, configurable : false },
+			$children : { value : [],        writable : true, enumerable : false, configurable : false },
+			$siblings : { value : [],        writable : true, enumerable : false, configurable : false },
+			$nextTree : { value : undefined, writable : true, enumerable : false, configurable : false }
 		});
 	}
 
 	Object.defineProperties(Tree.prototype, {
 		order : {
 			get : function () {
-				return this.$order;
+				if (this.$order == undefined) {
+					return -1;
+				} else {
+					return this.$order;
+				}
 			},
 
 			set : function (order) {
@@ -109,6 +115,18 @@ Serzone.action = Serzone.action || {};
 			},
 
 			configurable : false
+		},
+
+		depth : {
+			get : function () {
+				return (function getDepth(self, depth) {
+					if (self.parent == null) {
+						return depth;
+					} else {
+						return getDepth(self.parent, depth+1);
+					}
+				})(this);
+			}
 		},
 
 		children : { 
@@ -194,7 +212,9 @@ Serzone.action = Serzone.action || {};
 	 * Step Class
 	 */
 
-	function Step (obj, name) {
+	function Step (obj, name, parent) {
+		Tree.call(this, undefined, parent);
+
 		Object.defineProperties( this, {
 			obj   : { value : obj,   writable : true,  configurable : false },
 			name  : { value : name,  writable : false, configurable : false },
@@ -215,22 +235,25 @@ Serzone.action = Serzone.action || {};
 		});
 	}
 
-	Step.prototype = new Tree();
+	Step.prototype = Object.create(Tree.prototype);
+	Step.prototype.constructor = Step;
 
 	/*
 	 * Slide Class
 	 */
-	function Slide (elem, layer) {
+	function Slide (order, elem, parent) {
+		Tree.call(this, order, parent);
+
 		Object.defineProperties( this, {
-			elem     : { value : elem,   writable : false, configurable : false },
-			layer    : { value : layer,  writable : false, configurable : false },
-			steps    : { value : [],     writable : false, configurable : false },
+			$elem     : { value : elem,  writable : false, configurable : false },
+			$steps    : { value : [],   writable : false, configurable : false },
 
 			css : {
 				value : new CSS(elem),
 				writable : true,
 				configurable : false
 			},
+
 			body : {
 				value : document.createElement("div"),
 				writable : true,
@@ -245,10 +268,43 @@ Serzone.action = Serzone.action || {};
 			return child.tagName != "SECTION";
 		}).forEach( function (child) {
 			self.body.appendChild(child.cloneNode(true));
-		});
+		}); 
 	}
 
-	Slide.prototype = new Tree();
+	Slide.prototype = Object.create(Tree.prototype);
+	Slide.prototype.constructor = Slide;
+
+	Object.defineProperties(Slide.prototype, {
+		steps : {
+			get : function () {
+				function containedDirectlyNodes (selector, node) {
+					var children = arrayify( $$(selector, node) );
+
+					var DESCENDANT = Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY;
+					return children.filter( function (child) {
+						return children.every( function (c) {
+							 return c.compareDocumentPosition(child) != DESCENDANT;
+						});
+					});
+				}
+
+				function getSlideSteps (elem, parent) {
+					var step = new Step(elem, elem.getAttribute("action"), parent);
+
+					step.children = containedDirectlyNodes("div.step", elem).map(
+						function (e) { return getSlideSteps(e, current); }
+					);
+
+					return step;
+				}
+
+				return containedDirectlyNodes("div.step", this.body).map(
+					function (e) { return getSlideSteps(e, null); }
+				);
+			},
+
+		}
+	});
 
 	/*
 	 * Parser Class
@@ -262,13 +318,10 @@ Serzone.action = Serzone.action || {};
 
 	Parser.prototype = {
 		slideParser : function () {
-			function parseSlides (section, order, layer, parent) {
-				layer  = layer  || 0;
+			function parseSlides (section, order, parent) {
 				parent = parent || null;
 
-				var current    = new Slide(section, layer);
-				current.order  = order;
-				current.parent = parent;
+				var current    = new Slide(order, section, parent);
 				
 				var children = arrayify(section.childNodes).filter(
 					function (child) {
@@ -276,7 +329,7 @@ Serzone.action = Serzone.action || {};
 					}
 				).map(
 					function (child, i) {
-						var o = parseSlides(child, order+1, layer+1, current);
+						var o = parseSlides(child, order+1, current);
 						order = o.order;
 		
 						return o.slides;
@@ -419,7 +472,6 @@ Serzone.action = Serzone.action || {};
 			);
 
 			document.body.addEventListener("keypress", function(e) {
-				console.log(e.keyCode);
 				if (self.eventType.next.keycode.indexOf(e.keyCode) > -1) {
 					self.next();
 				}
