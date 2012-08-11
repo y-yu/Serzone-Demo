@@ -1,0 +1,11 @@
+DefineCommandVars()
+
+DepsUpdate(dirs) = 
+	deps = 
+		foreach(dir, $(dirs))
+			foreach(file, $(ls $(dir)))
+				value $(file)
+	
+	return $(deps)
+
+.SUBDIRS: .

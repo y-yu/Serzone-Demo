@@ -1,16 +1,5 @@
 "use strict";
 
-var Serzone = Serzone || {};
-Serzone.action = Serzone.action || {};
-
-Serzone.action = {
-	changeSlide : {
-		type : "next",
-		init : function (slide, canvas, other) { },
-		fire : function (slide, canvas) { }
-	},
-};
-
 //(function () {
 
 /*
@@ -134,7 +123,7 @@ Object.defineProperties(Tree.prototype, {
 				} else {
 					return getDepth(self.parent, depth+1);
 				}
-			}(this));
+			}(this, 0));
 		}
 	},
 
@@ -180,8 +169,9 @@ Object.defineProperties(Tree.prototype, {
 
 	nextSibling : {
 		get : function () {
+			var self = this;
 			var candidates = this.siblings.filter(
-				function (s) { return s.order > this.order; }
+				function (s) { return s.order > self.order; }
 			);
 
 			return (candidates.length != 0 ? candidates[0] : null);
@@ -215,7 +205,6 @@ Object.defineProperties(Tree.prototype, {
 		configurable : false
 	}
 });
-
 
 /*
  * Step Class
@@ -254,8 +243,8 @@ function Slide (order, elem, parent) {
 	Tree.call(this, order, parent);
 
 	Object.defineProperties( this, {
-		$elem     : { value : elem,  writable : false, configurable : false },
-		$steps    : { value : [],   writable : false, configurable : false },
+		$elem     : { value : elem,      writable : false, configurable : false },
+		$steps    : { value : undefined, writable : true,  configurable : false },
 
 		css : {
 			value : new CSS(elem),
@@ -301,15 +290,19 @@ Object.defineProperties(Slide.prototype, {
 				var step = new Step(elem, elem.getAttribute("action"), parent);
 
 				step.children = containedDirectlyNodes("div.step", elem).map(
-					function (e) { return getSlideSteps(e, current); }
+					function (e) { return getSlideSteps(e, step); }
 				);
 
 				return step;
 			}
 
-			return containedDirectlyNodes("div.step", this.body).map(
-				function (e) { return getSlideSteps(e, null); }
-			);
+			if (this.$steps == undefined) {
+				this.$steps = containedDirectlyNodes("div.step", this.body).map(
+					function (e) { return getSlideSteps(e, null); }
+				);
+			}
+
+			return this.$steps;
 		},
 
 	}

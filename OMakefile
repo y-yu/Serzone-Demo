@@ -1,0 +1,19 @@
+dirs[] =
+	js
+	lib
+	t/src
+
+
+
+
+%.js:
+	echo 
+
+t/dat/jsTestDriver.conf-coverage.dat: $(DepsUpdate $(dirs))
+	js-test-driver --tests all --captureConsole --testOutput t/dat/
+
+t/result/index.html: t/dat/jsTestDriver.conf-coverage.dat
+	genhtml -o t/result $<
+	rm 
+
+.DEFAULT: t/result/index.html

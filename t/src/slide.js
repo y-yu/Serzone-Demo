@@ -57,6 +57,17 @@ SlideTest.prototype["test work children and parent property"] = function () {
 	assertEquals(slide1, slide1.children[1].parent);
 };
 
+SlideTest.prototype["test depth property"] = function () {
+	var slide0 = Serzone.slides[0];
+	var slide1 = Serzone.slides[1];
+
+	assertEquals(0, slide0.depth);
+	assertEquals(0, slide1.depth);
+	slide1.children.forEach( function (c) {
+		assertEquals(1, c.depth);
+	});
+};
+
 SlideTest.prototype["test work siblings property"] = function () {
 	var slide0 = Serzone.slides[0];
 	var slide1 = Serzone.slides[1];
@@ -74,3 +85,36 @@ SlideTest.prototype["test work siblings property"] = function () {
 SlideTest.prototype["test nextTree property"] = function () {
 	assertEquals(Serzone.slides[1], Serzone.slides[0].nextTree);
 };
+
+SlideTest.prototype["test nextSibling property"] = function () {
+	var slide0 = Serzone.slides[0];
+	var slide1 = Serzone.slides[1];
+
+	assertEquals(slide1, slide0.nextSibling);
+	assertNull(slide1.nextSibling);
+
+	var slide1_0 = slide1.children[0];
+	var slide1_1 = slide1.children[1];
+
+	assertEquals(slide1_1, slide1_0.nextSibling);
+	assertNull(slide1_1.nextSibling);
+};
+
+SlideTest.prototype["test next property"] = function () {
+	var slide0 = Serzone.slides[0];
+	var slide1 = Serzone.slides[1];
+	var slide1_0 = slide1.children[0];
+	var slide1_1 = slide1.children[1];
+
+	assertEquals(slide1, slide0.next);
+	assertEquals(slide1_0, slide1.next);
+	assertEquals(slide1_1, slide1_0.next);
+	assertNull(slide1_1.next);
+};
+
+SlideTest.prototype["Slide has steps, which is instanceof Array"] = function () {
+	Serzone.slides.forEach( function (s) {
+		assertArray(s.steps);
+	});
+};
+
