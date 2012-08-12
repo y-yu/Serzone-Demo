@@ -14,20 +14,9 @@ function byId (id, root) {
 	return root.getElementById(id);
 }
 
-function $ (selecter, root) {
+function $ (selector, root) {
 	root = root || document;
-	return root.querySelector(selecter);
-}
-
-function $$ (selecter, root) {
-	root = root || document;
-	return arrayify( root.querySelectorAll(selecter) );
-}
-
-function validate (object, type) {
-	if ( !(object instanceof type) ) {
-		throw new Error("Expected " + type + ", but " + object.constructor);
-	}
+	return arrayify( root.querySelectorAll(selector) );
 }
 
 /*
@@ -81,8 +70,7 @@ function Tree (order, parent) {
 		$order    : { value : order,     writable : true, enumerable : false, configurable : false },
 		$parent   : { value : parent,    writable : true, enumerable : false, configurable : false },
 		$children : { value : [],        writable : true, enumerable : false, configurable : false },
-		$siblings : { value : [],        writable : true, enumerable : false, configurable : false },
-		$nextTree : { value : undefined, writable : true, enumerable : false, configurable : false }
+		$siblings : { value : [],        writable : true, enumerable : false, configurable : false }
 	});
 }
 
@@ -155,18 +143,6 @@ Object.defineProperties(Tree.prototype, {
 		configurable : false
 	},
 
-	nextTree : {
-		get : function () {
-			return this.$nextTree;
-		},
-
-		set : function (e) {
-			this.$nextTree = e;
-		},
-
-		configurable : false
-	},
-
 	nextSibling : {
 		get : function () {
 			var self = this;
@@ -193,9 +169,6 @@ Object.defineProperties(Tree.prototype, {
 				else if ( self.parent != null ) {
 					return findNext(self.parent);
 				}
-				else if ( self.nextTree != null ) {
-					return self.nextTree;
-				}
 				else {
 					return null;
 				}
@@ -210,7 +183,7 @@ Object.defineProperties(Tree.prototype, {
  * Step Class
  */
 
-function Step (obj, name, parent) {
+function Step (order, obj, name, parent) {
 	Tree.call(this, undefined, parent);
 
 	Object.defineProperties( this, {
@@ -276,30 +249,49 @@ Object.defineProperties(Slide.prototype, {
 	steps : {
 		get : function () {
 			function containedDirectlyNodes (selector, node) {
-				var children = arrayify( $$(selector, node) );
+				var children = $(selector, node);
 
 				var DESCENDANT = Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY;
+
 				return children.filter( function (child) {
 					return children.every( function (c) {
-						 return c.compareDocumentPosition(child) != DESCENDANT;
+						return c.compareDocumentPosition(child) != DESCENDANT;
 					});
 				});
 			}
 
-			function getSlideSteps (elem, parent) {
-				var step = new Step(elem, elem.getAttribute("action"), parent);
+			function getSlideSteps (elem, parent, order) {
+				var step = new Step(order, elem, elem.getAttribute("action"), parent);
 
-				step.children = containedDirectlyNodes("div.step", elem).map(
-					function (e) { return getSlideSteps(e, step); }
+				step.children = containedDirectlyNodes(".step", elem).map(
+					function (e) { 
+						var ret = getSlideSteps(e, step, order);
+						order += ret.order;
+
+						return ret.step;
+					}
 				);
 
-				return step;
+				return {
+					order : order,
+					step  : step
+				};
 			}
 
 			if (this.$steps == undefined) {
-				this.$steps = containedDirectlyNodes("div.step", this.body).map(
-					function (e) { return getSlideSteps(e, null); }
+				var order = 0;
+				this.$steps = containedDirectlyNodes(".step", this.body).map(
+					function (e) {
+						var ret = getSlideSteps(e, null, order);
+						order += ret.order;
+
+						return ret.step;
+					}
 				);
+				this.$steps.forEach( function (s, i, steps) {
+					s.siblings = steps.slice(0, i);
+					s.siblings = steps.slice(i + 1);
+				});
 			}
 
 			return this.$steps;
@@ -344,12 +336,10 @@ Parser.prototype = {
 				}
 			);
 
-			children.forEach(
-				function (child, i, children) {
-					child.siblings = children.slice(0, i);
-					child.siblings = children.slice(i + 1);
-				}
-			);
+			children.forEach( function (child, i, children) {
+				child.siblings = children.slice(0, i);
+				child.siblings = children.slice(i + 1);
+			});
 
 			current.children = children;
 
@@ -366,40 +356,36 @@ Parser.prototype = {
 			}
 		).map(
 			function (section, i, serzoneChildren) {
-				var order     = (i == 0 ? 0 : $$("section", serzoneChildren[i-1]).length + 1);
+				var order     = (i == 0 ? 0 : $("section", serzoneChildren[i-1]).length + 1);
 				var slideTree = parseSlides(section, order).slides;
 				
 				return slideTree;
 			}
-		).map(
-			function (s, i, slides) {
-				if (i < slides.length - 1) {
-					s.nextTree = slides[i+1];
-				}
-
-				s.siblings = slides.slice(0, i);
-				s.siblings = slides.slice(i + 1);
-
-				return s;
-			}
 		);
+
+		this.slides.forEach( function (s, i, slides) {
+			s.siblings = slides.slice(0, i);
+			s.siblings = slides.slice(i + 1);
+		});
 	},
 	
 	stepParser : function () {
-		var self = this;
+		this.steps = this.slides.map( function (slide, i) { 
+			var step      = new Step(i, slide, "changeSlide", null);
 
-		function parseSteps (slide) {
-			self.steps = self.steps.concat(slide.steps);
-			self.steps.push( new Step(slide, "changeSlide") );
+			slide.steps.forEach( function (s) {
+				s.parent = step;
+			});
 
-			slide.children.forEach(
-				function (c) {
-					parseSteps(c);
-				}
-			);
-		}
+			step.children = slide.steps;
 
-		this.slides.forEach( function (e) { parseSteps(e); });
+			return step;
+		});
+		
+		this.steps.forEach( function (step, i, steps) {
+			step.siblings = steps.slice(0, i);
+			step.siblings = steps.slice(i + 1);
+		});
 	},
 
 	parse : function () {

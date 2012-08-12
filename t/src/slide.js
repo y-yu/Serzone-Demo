@@ -20,7 +20,7 @@ SlideTest.prototype.setUp = function () {
 			</section>
 		</div>
 	*/
-
+    
 	Serzone.init();
 };
 
@@ -82,10 +82,6 @@ SlideTest.prototype["test work siblings property"] = function () {
 	assertEquals(slide1.children[1], slide1.children[0].siblings[0]);
 };
 
-SlideTest.prototype["test nextTree property"] = function () {
-	assertEquals(Serzone.slides[1], Serzone.slides[0].nextTree);
-};
-
 SlideTest.prototype["test nextSibling property"] = function () {
 	var slide0 = Serzone.slides[0];
 	var slide1 = Serzone.slides[1];
@@ -112,7 +108,7 @@ SlideTest.prototype["test next property"] = function () {
 	assertNull(slide1_1.next);
 };
 
-SlideTest.prototype["Slide has steps, which is instanceof Array"] = function () {
+SlideTest.prototype["test Slide has steps, which is instanceof Array"] = function () {
 	Serzone.slides.forEach( function (s) {
 		assertArray(s.steps);
 	});
