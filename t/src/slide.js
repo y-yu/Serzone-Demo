@@ -57,6 +57,15 @@ SlideTest.prototype["test work children and parent property"] = function () {
 	assertEquals(slide1, slide1.children[1].parent);
 };
 
+SlideTest.prototype["test descendants property"] = function () {
+	assertEquals([], Serzone.slides[0].descendants);
+	assertEquals(2, Serzone.slides[1].descendants.length);
+
+	Serzone.slides[1].children.forEach( function (c, i) {
+		assertEquals(c, Serzone.slides[1].descendants[i]);
+	});
+};
+
 SlideTest.prototype["test depth property"] = function () {
 	var slide0 = Serzone.slides[0];
 	var slide1 = Serzone.slides[1];

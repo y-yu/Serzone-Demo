@@ -67,10 +67,10 @@ CSS.prototype = {
  */
 function Tree (order, parent) {
 	Object.defineProperties(this, {
-		$order    : { value : order,     writable : true, enumerable : false, configurable : false },
-		$parent   : { value : parent,    writable : true, enumerable : false, configurable : false },
-		$children : { value : [],        writable : true, enumerable : false, configurable : false },
-		$siblings : { value : [],        writable : true, enumerable : false, configurable : false }
+		$order       : { value : order,     writable : true, enumerable : false, configurable : false },
+		$parent      : { value : parent,    writable : true, enumerable : false, configurable : false },
+		$children    : { value : [],        writable : true, enumerable : false, configurable : false },
+		$siblings    : { value : [],        writable : true, enumerable : false, configurable : false },
 	});
 }
 
@@ -143,6 +143,22 @@ Object.defineProperties(Tree.prototype, {
 		configurable : false
 	},
 
+	descendants : {
+		get : function () {
+			var descendants = this.children;
+
+			this.children.filter( function (c) {
+				return c.descendants.length > 0;
+			}).forEach( function (c) {
+				descendants = descendants.concat(c.descendants);
+			});
+
+			return descendants;
+		},
+
+		configurable : false
+	},
+
 	nextSibling : {
 		get : function () {
 			var self = this;
@@ -184,7 +200,7 @@ Object.defineProperties(Tree.prototype, {
  */
 
 function Step (order, obj, name, parent) {
-	Tree.call(this, undefined, parent);
+	Tree.call(this, order, parent);
 
 	Object.defineProperties( this, {
 		obj   : { value : obj,   writable : true,  configurable : false },

@@ -23,6 +23,10 @@ StepTest.prototype.setUp = function () {
 					<div class="step" action="hoge">
 						Step 1-0-0
 					</div>
+
+					<div class="step" action="hoge">
+						Step 1-0-1
+					</div>
 				</div>
 			</section>
 		</div>
@@ -45,22 +49,43 @@ StepTest.prototype["test name of steps which slide has are changeSlide"] = funct
 	});
 };
 
-StepTest.prototype["test order property"] = function () {
-	Serzone.steps.forEach( function (s, i) {
-		assertEquals(i, s.order);
-	});
-};
-
 StepTest.prototype["test steps has children property, which is instanceof Array"] = function () {
 	Serzone.steps.forEach( function (s) {
 		assertArray(s.children);
 	});
 };
 
-StepTest.prototype["test children length"] = function () {
+StepTest.prototype["test length of children property"] = function () {
 	assertEquals(2, Serzone.steps[0].children.length);
 	assertEquals(1, Serzone.steps[1].children.length);
-	assertEquals(1, Serzone.steps[1].children[0].children.length);
+	assertEquals(2, Serzone.steps[1].children[0].children.length);
+};
+
+StepTest.prototype["test descendants property"] = function () {
+	assertArray(Serzone.steps[0].descendants);
+	assertArray(Serzone.steps[1].descendants);
+
+	assertEquals(2, Serzone.steps[0].descendants.length);
+	assertEquals(3, Serzone.steps[1].descendants.length);
+
+	assertEquals(Serzone.steps[0].children.sort(), Serzone.steps[0].descendants.sort());
+
+	var step1Child = Serzone.steps[1].children;
+	assertEquals(step1Child[0], Serzone.steps[1].descendants[0]);
+	assertEquals(step1Child[0].children[0], Serzone.steps[1].descendants[1]);
+	assertEquals(step1Child[0].children[1], Serzone.steps[1].descendants[2]);
+};
+
+StepTest.prototype["test order property"] = function () {
+	assertEquals(0, Serzone.steps[0].order);
+	assertEquals(1, Serzone.steps[0].children[0].order);
+	assertEquals(2, Serzone.steps[0].children[1].order);
+
+
+	assertEquals(3, Serzone.steps[1].order);
+	assertEquals(4, Serzone.steps[1].children[0].order);
+	assertEquals(5, Serzone.steps[1].children[0].children[0].order);
+	assertEquals(6, Serzone.steps[1].children[0].children[1].order);
 };
 
 StepTest.prototype["test steps has parent property, and it compare children"] = function () {
@@ -107,4 +132,7 @@ StepTest.prototype["test nextSibling property"] = function () {
 	var step1 = Serzone.steps[1];
 
 	assertEquals(step1, step0.nextSibling);
+
+
 };
+
