@@ -27,6 +27,10 @@ StepTest.prototype.setUp = function () {
 					<div class="step" action="hoge">
 						Step 1-0-1
 					</div>
+
+					<div class="step" action="hoge">
+						Step 1-0-1
+					</div>
 				</div>
 			</section>
 		</div>
@@ -58,7 +62,7 @@ StepTest.prototype["test steps has children property, which is instanceof Array"
 StepTest.prototype["test length of children property"] = function () {
 	assertEquals(2, Serzone.steps[0].children.length);
 	assertEquals(1, Serzone.steps[1].children.length);
-	assertEquals(2, Serzone.steps[1].children[0].children.length);
+	assertEquals(3, Serzone.steps[1].children[0].children.length);
 };
 
 StepTest.prototype["test descendants property"] = function () {
@@ -66,7 +70,7 @@ StepTest.prototype["test descendants property"] = function () {
 	assertArray(Serzone.steps[1].descendants);
 
 	assertEquals(2, Serzone.steps[0].descendants.length);
-	assertEquals(3, Serzone.steps[1].descendants.length);
+	assertEquals(4, Serzone.steps[1].descendants.length);
 
 	assertEquals(Serzone.steps[0].children.sort(), Serzone.steps[0].descendants.sort());
 
@@ -78,14 +82,14 @@ StepTest.prototype["test descendants property"] = function () {
 
 StepTest.prototype["test order property"] = function () {
 	assertEquals(0, Serzone.steps[0].order);
-	assertEquals(1, Serzone.steps[0].children[0].order);
-	assertEquals(2, Serzone.steps[0].children[1].order);
+	assertEquals(0, Serzone.steps[0].children[0].order);
+	assertEquals(1, Serzone.steps[0].children[1].order);
 
-
-	assertEquals(3, Serzone.steps[1].order);
-	assertEquals(4, Serzone.steps[1].children[0].order);
-	assertEquals(5, Serzone.steps[1].children[0].children[0].order);
-	assertEquals(6, Serzone.steps[1].children[0].children[1].order);
+	assertEquals(1, Serzone.steps[1].order);
+	assertEquals(0, Serzone.steps[1].children[0].order);
+	assertEquals(0, Serzone.steps[1].children[0].children[0].order);
+	assertEquals(1, Serzone.steps[1].children[0].children[1].order);
+	assertEquals(2, Serzone.steps[1].children[0].children[2].order);
 };
 
 StepTest.prototype["test steps has parent property, and it compare children"] = function () {
@@ -96,6 +100,8 @@ StepTest.prototype["test steps has parent property, and it compare children"] = 
 	});
 
 	assertEquals(Serzone.steps[1].children[0], Serzone.steps[1].children[0].children[0].parent);
+	assertEquals(Serzone.steps[1].children[0], Serzone.steps[1].children[0].children[1].parent);
+	assertEquals(Serzone.steps[1].children[0], Serzone.steps[1].children[0].children[2].parent);
 };
 
 StepTest.prototype["test depth property"] = function () {
@@ -110,6 +116,8 @@ StepTest.prototype["test depth property"] = function () {
 	var step1Child = Serzone.steps[1].children;
 	assertEquals(1, step1Child[0].depth);
 	assertEquals(2, step1Child[0].children[0].depth);
+	assertEquals(2, step1Child[0].children[1].depth);
+	assertEquals(2, step1Child[0].children[2].depth);
 };
 
 StepTest.prototype["test siblings property"] = function () {
@@ -125,6 +133,17 @@ StepTest.prototype["test siblings property"] = function () {
 		assertEquals(1, s.siblings.length);
 		assertEquals(steps[1 - i], s.siblings[0]);
 	});
+
+	var step1_0 = step1.children[0].children;
+	var f = function (e) {
+		return function (s) {
+			return e != s;
+		}
+	};
+
+	assertEquals(step1_0.filter( f(step1_0[0]) ).sort(), step1_0[0].siblings.sort());
+	assertEquals(step1_0.filter( f(step1_0[1]) ).sort(), step1_0[1].siblings.sort());
+	assertEquals(step1_0.filter( f(step1_0[2]) ).sort(), step1_0[2].siblings.sort());
 };
 
 StepTest.prototype["test nextSibling property"] = function () {

@@ -78,7 +78,7 @@ Object.defineProperties(Tree.prototype, {
 	order : {
 		get : function () {
 			if (this.$order == undefined) {
-				return -1;
+				throw new Error("order property is not defined.");
 			} else {
 				return this.$order;
 			}
@@ -122,7 +122,7 @@ Object.defineProperties(Tree.prototype, {
 
 		set : function (newChildren) {
 			this.$children = this.$children.concat(newChildren).sort(
-				function (a, b) { return a.order > b.order; }
+				function (a, b) { return a.order - b.order; }
 			);
 		},
 
@@ -136,7 +136,7 @@ Object.defineProperties(Tree.prototype, {
 
 		set : function (newSiblings) {
 			this.$siblings = this.$siblings.concat(newSiblings).sort(
-				function (a, b) { return a.order > b.order; }
+				function (a, b) { return a.order - b.order; }
 			);
 		},
 
@@ -163,7 +163,7 @@ Object.defineProperties(Tree.prototype, {
 		get : function () {
 			var self = this;
 			var candidates = this.siblings.filter(
-				function (s) { return s.order > self.order; }
+				function (s) { return s.order >= self.order; }
 			);
 
 			return (candidates.length != 0 ? candidates[0] : null);
@@ -280,29 +280,20 @@ Object.defineProperties(Slide.prototype, {
 				var step = new Step(order, elem, elem.getAttribute("action"), parent);
 
 				step.children = containedDirectlyNodes(".step", elem).map(
-					function (e) { 
-						var ret = getSlideSteps(e, step, order);
-						order += ret.order;
-
-						return ret.step;
-					}
+					function (e, i) { return getSlideSteps(e, step, i); }
 				);
 
-				return {
-					order : order,
-					step  : step
-				};
+				step.children.forEach( function (s, i, steps) {
+					s.siblings = steps.slice(0, i);
+					s.siblings = steps.slice(i + 1);
+				});
+
+				return step;
 			}
 
 			if (this.$steps == undefined) {
-				var order = 0;
 				this.$steps = containedDirectlyNodes(".step", this.body).map(
-					function (e) {
-						var ret = getSlideSteps(e, null, order);
-						order += ret.order;
-
-						return ret.step;
-					}
+					function (e, i) { return getSlideSteps(e, null, i); }
 				);
 				this.$steps.forEach( function (s, i, steps) {
 					s.siblings = steps.slice(0, i);
@@ -470,7 +461,7 @@ function Spike (steps) {
 		e.fire();
 
 		if (idx < steps.length - 1) {
-			steps[idx+1].init();
+			steps[idx + 1].init();
 		}
 		self.history.push( Canvas.cloneNode(true) );
 	});
