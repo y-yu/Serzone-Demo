@@ -3,8 +3,10 @@ StepTest = TestCase("StepTest");
 StepTest.prototype.setUp = function () {
 	/*:DOC += 
 		<div id="serzone">
+
+			// Slide 0
 			<section>
-				<h1>Step 0</h1>
+				<h1>Step 0 (Change Slide)</h1>
 
 				<div class="step" action="hoge">
 					Step 0-0
@@ -15,8 +17,9 @@ StepTest.prototype.setUp = function () {
 				</div>
 			</section>
 
+		   // Slide 1
 			<section>
-				<h1>Step 1</h1>
+				<h1>Step 1 (Change Slide)</h1>
 
 				<div class="step" action="hoge">
 					Step 1-0
@@ -151,7 +154,36 @@ StepTest.prototype["test nextSibling property"] = function () {
 	var step1 = Serzone.steps[1];
 
 	assertEquals(step1, step0.nextSibling);
+	assertNull(step1.nextSibling);
 
+	var step0_0 = step0.children[0];
+	var step0_1 = step0.children[1];
 
+	assertEquals(step0_1, step0_0.nextSibling);
+	assertNull(step0_1.nextSibling);
 };
 
+StepTest.prototype["test next property"] = function () {
+	var step0 = Serzone.steps[0];
+	var step1 = Serzone.steps[1];
+	var step0_0 = step0.children[0];
+	var step0_1 = step0.children[1];
+
+	assertEquals(step0_0, step0.next);
+	assertEquals(step0_1, step0_0.next);
+	assertEquals(step1, step0_1.next);
+	
+	var step1_0 = step1.children[0];
+	var step1_0_0 = step1.children[0].children[0];
+
+	assertEquals(step1_0_0, step1_0.next);
+
+	assertNull(step1_0_0.next.next.next);
+};
+
+StepTest.prototype["test init and fire method is instance of Fuction"] = function () {
+	for (var i = Serzone.steps[0]; i !== null; i = i.next) {
+		assertFunction(i.init);
+		assertFunction(i.fire);
+	}
+};

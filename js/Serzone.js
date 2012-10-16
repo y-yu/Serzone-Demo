@@ -19,6 +19,18 @@ function $ (selector, root) {
 	return arrayify( root.querySelectorAll(selector) );
 }
 
+function containedDirectlyNodes (selector, node) {
+	var children = $(selector, node);
+
+	var DESCENDANT = Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY;
+
+	return children.filter( function (child) {
+		return children.every( function (c) {
+			return c.compareDocumentPosition(child) != DESCENDANT;
+		});
+	});
+}
+
 /*
  * Initialize
  */
@@ -264,18 +276,6 @@ Slide.prototype.constructor = Slide;
 Object.defineProperties(Slide.prototype, {
 	steps : {
 		get : function () {
-			function containedDirectlyNodes (selector, node) {
-				var children = $(selector, node);
-
-				var DESCENDANT = Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY;
-
-				return children.filter( function (child) {
-					return children.every( function (c) {
-						return c.compareDocumentPosition(child) != DESCENDANT;
-					});
-				});
-			}
-
 			function getSlideSteps (elem, parent, order) {
 				var step = new Step(order, elem, elem.getAttribute("action"), parent);
 
@@ -310,14 +310,10 @@ Object.defineProperties(Slide.prototype, {
 /*
  * Parser Class
  */
-function Parser () {
-	Object.defineProperties( this, {
-		slides : { value : [], writable : true, configurable : false },
-		steps  : { value : [], writable : true, configurable : false }
-	});
-}
+var Parser = {
+	slides : [],
+	steps  : [],
 
-Parser.prototype = {
 	init : function () {
 		if ( byId("serzone") == null ) {
 			throw new Error("Don't have element which has id=serzone");
@@ -328,18 +324,14 @@ Parser.prototype = {
 		function parseSlides (section, order, parent) {
 			parent = parent || null;
 
-			var current    = new Slide(order, section, parent);
+			var current = new Slide(order, section, parent);
 			
-			var children = arrayify(section.childNodes).filter(
-				function (child) {
-					return child.tagName == "SECTION";
-				}
-			).map(
+			var children = containedDirectlyNodes("section", section).map(
 				function (child, i) {
-					var o = parseSlides(child, order+1, current);
-					order = o.order;
+					var o  = parseSlides(child, order + 1, current);
+					order += o.descendants.length + 1;
 	
-					return o.slides;
+					return o;
 				}
 			);
 
@@ -350,23 +342,14 @@ Parser.prototype = {
 
 			current.children = children;
 
-			return {
-				order    : order,
-				slides   : current,
-			};
+			return current;
 		}
 
-		var self = this;
-		this.slides = arrayify(byId("serzone").childNodes).filter(
-			function (child) {
-				return child.tagName == "SECTION";
-			}
-		).map(
+		this.slides = containedDirectlyNodes("section", byId("serzone")).map(
 			function (section, i, serzoneChildren) {
-				var order     = (i == 0 ? 0 : $("section", serzoneChildren[i-1]).length + 1);
-				var slideTree = parseSlides(section, order).slides;
+				var order = (i == 0 ? 0 : $("section", serzoneChildren[i-1]).length + 1);
 				
-				return slideTree;
+				return parseSlides(section, order);
 			}
 		);
 
@@ -411,16 +394,16 @@ Parser.prototype = {
  */
 function Spike (steps) {
 	Object.defineProperties(this, {
-		steps : { value : steps, writable : false, configurable : false },
-		count : { value : 0,     writable : true,  configurable : false },
-		history : { value : [], writable : true, configurable : false },
+		$steps : { value : steps, writable : false, configurable : false },
+		$count : { value : 0,     writable : true,  configurable : false },
+		$history : { value : [], writable : true, configurable : false },
 
 		next : {
 			value : function (e) {
-				if (this.count < this.history.length - 1) {
-					document.body.removeChild(this.history[this.count]);
-					this.count++;
-					document.body.insertBefore(this.history[this.count], byId("serzone"));
+				if (this.$count < this.$history.length - 1) {
+					document.body.removeChild(this.$history[this.$count]);
+					this.$count++;
+					document.body.insertBefore(this.$history[this.$count], byId("serzone"));
 				}
 			},
 			configurable : false
@@ -428,10 +411,10 @@ function Spike (steps) {
 
 		previous : {
 			value : function (e) {
-				if (this.count > 0) {
-					document.body.removeChild(this.history[this.count]);
-					this.count--;
-					document.body.insertBefore(this.history[this.count], byId("serzone"));
+				if (this.$count > 0) {
+					document.body.removeChild(this.$history[this.$count]);
+					this.$count--;
+					document.body.insertBefore(this.$history[this.$count], byId("serzone"));
 				}
 			},
 			configurable : false
@@ -454,7 +437,7 @@ function Spike (steps) {
 	});
 
 	this.steps[0].init();
-	this.history.push( Canvas.cloneNode(true) );
+	this.$history.push( Canvas.cloneNode(true) );
 
 	var self = this;
 	this.steps.forEach( function (e, idx, steps) {
@@ -463,13 +446,13 @@ function Spike (steps) {
 		if (idx < steps.length - 1) {
 			steps[idx + 1].init();
 		}
-		self.history.push( Canvas.cloneNode(true) );
+		self.$history.push( Canvas.cloneNode(true) );
 	});
 
-	document.body.insertBefore(self.history[self.count], byId("serzone"));
+	document.body.insertBefore(self.$history[self.$count], byId("serzone"));
 }
 
-Spike.prototype = {
+Object.defineProperties(Spike.prototype, {
 	init : function () {
 		// next
 		var self = this;
@@ -487,14 +470,13 @@ Spike.prototype = {
 			}
 		});
 	}
-};
+});
 
 Serzone.init = function () {
-	Serzone.parser = new Parser;
-	Serzone.parser.parse();
-
-	Serzone.slides = Serzone.parser.slides;
-	Serzone.steps  = Serzone.parser.steps;
+	Parser.init();
+	Parser.parse();
+	Serzone.slides = Parser.slides;
+	Serzone.steps  = Parser.steps;
 
 	Serzone.spike  = new Spike(Serzone.steps);
 	Serzone.spike.init();
