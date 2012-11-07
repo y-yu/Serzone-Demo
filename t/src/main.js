@@ -7,15 +7,15 @@ SerzoneTest.prototype["test check Serzone and Serzone.action"] = function () {
 	assertNotUndefined(Serzone.action);
 };
 
-SerzoneTest.prototype["test check Serzone has init() and works"] = function () {
-	assertFunction(Serzone.init);
+SerzoneTest.prototype["test check Serzone has start method and works"] = function () {
+	assertFunction(Serzone.start);
 	
 	assertException(function () {
-		Serzone.init();
+		Serzone.start();
 	}, "Error");
 };
 
-SerzoneTest.prototype["test check Serzone init()"] = function () {
+SerzoneTest.prototype["test check Serzone start method"] = function () {
 	/*:DOC += 
 		<div id="serzone">
 		<section>
@@ -23,8 +23,7 @@ SerzoneTest.prototype["test check Serzone init()"] = function () {
 		</section>
 		</div>
 	*/
-	Serzone.init();
+	Serzone.start();
 	assertNotUndefined(Serzone.slides);
 	assertNotUndefined(Serzone.steps);
-	assertNotUndefined(Serzone.spike);
 };

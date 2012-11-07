@@ -221,15 +221,21 @@ function Step (order, obj, name, parent) {
 
 		init : {
 			value : function (other) {
-				return Serzone.action[name].init(obj, Canvas, other);
+				Serzone.state.history = this.obj;
+
+				return Serzone.action[name].init(this);
 			},
-			writable : false
+			writable : false,
+			configurable : false
 		},
 		fire : {
 			value : function (other) {
-				return Serzone.action[name].fire(obj, Canvas, other);
+				Serzone.state.history = this.obj;
+
+				return Serzone.action[name].fire(this);
 			},
-			writable : false
+			writable : false,
+			configurable : false
 		}
 	});
 }
@@ -392,35 +398,12 @@ var Parser = {
 /*
  * Spike Class
  */
-function Spike (steps) {
+function Spike (slide) {
 	Object.defineProperties(this, {
-		$steps : { value : steps, writable : false, configurable : false },
-		$count : { value : 0,     writable : true,  configurable : false },
-		$history : { value : [], writable : true, configurable : false },
-
-		next : {
-			value : function (e) {
-				if (this.$count < this.$history.length - 1) {
-					document.body.removeChild(this.$history[this.$count]);
-					this.$count++;
-					document.body.insertBefore(this.$history[this.$count], byId("serzone"));
-				}
-			},
-			configurable : false
-		},
-
-		previous : {
-			value : function (e) {
-				if (this.$count > 0) {
-					document.body.removeChild(this.$history[this.$count]);
-					this.$count--;
-					document.body.insertBefore(this.$history[this.$count], byId("serzone"));
-				}
-			},
-			configurable : false
-		},
-
-		eventType : {
+		$slide       : { value : slide, writable : false, configurable : false },	// Step Object
+		$count       : { value : 0,     writable : true,  configurable : false },
+		$stack       : { value : [],    writable : true,  configurable : false },
+		$eventType   : {
 			value : {
 				next : {
 					mouse   : ["click"],
@@ -433,55 +416,85 @@ function Spike (steps) {
 			},
 			writable     : false,
 			configurable : false
+		},
+		next : {
+
 		}
 	});
 
-	this.steps[0].init();
-	this.$history.push( Canvas.cloneNode(true) );
+	this.$stack.push(slide);
+	this.$stack = this.$stack.concat(slide.descendants);
 
-	var self = this;
-	this.steps.forEach( function (e, idx, steps) {
-		e.fire();
-
-		if (idx < steps.length - 1) {
-			steps[idx + 1].init();
-		}
-		self.$history.push( Canvas.cloneNode(true) );
+	this.$stack.forEach( function (s) {
+		s.init();
 	});
-
-	document.body.insertBefore(self.$history[self.$count], byId("serzone"));
-}
+};
 
 Object.defineProperties(Spike.prototype, {
+	next : {
+		get : function () { this.$stack.push(); }
+	},
+
 	init : function () {
 		// next
 		var self = this;
-		this.eventType.next.mouse.forEach(
+		this.$eventType.next.mouse.forEach(
 			function (e) {
 				document.body.addEventListener(e, function () {
-					self.next();
+					self.next.fire();
 				});
 			}
 		);
 
 		document.body.addEventListener("keypress", function(e) {
-			if (self.eventType.next.keycode.indexOf(e.keyCode) > -1) {
-				self.next();
+			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
+				self.next.fire();
 			}
 		});
 	}
 });
 
-Serzone.init = function () {
+Serzone.start = function () {
+	document.body.insertBefore(Canvas, byId("serzone"));
+
 	Parser.init();
 	Parser.parse();
-	Serzone.slides = Parser.slides;
-	Serzone.steps  = Parser.steps;
+	this.slides = Parser.slides;
+	this.steps  = Parser.steps;
 
-	Serzone.spike  = new Spike(Serzone.steps);
-	Serzone.spike.init();
+	this.state = Object.defineProperties({}, {
+		currentSlide : { value : 0, writable : true, configurable : false },
+		currentStep  : { value : 0, writable : true, configurable : false },
+		
+		history : (function () {
+			var h = [];
 
-	document.body.insertBefore(Canvas, byId("serzone"));
+			return {
+				get : function () {
+					var e = h.pop();
+
+					if (e instanceof Slide) {
+						this.currentSlide--;
+					}
+
+					this.currentStep--;
+
+					return e;
+				},
+				set : function (e) {
+					if (e instanceof Slide) {
+						this.currentSlide++;
+					}
+
+					this.currentStep++;
+					h.push(e);
+				}
+			};
+		}())
+	});
 };
 
 //}());
+//
+//
+//

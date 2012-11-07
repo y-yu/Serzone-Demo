@@ -21,7 +21,7 @@ SlideTest.prototype.setUp = function () {
 		</div>
 	*/
     
-	Serzone.init();
+	Serzone.start();
 };
 
 SlideTest.prototype["test Serzone has slides and it is Array"] = function () {
