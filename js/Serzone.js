@@ -34,8 +34,9 @@ function containedDirectlyNodes (selector, node) {
 /*
  * Initialize
  */
-var Canvas = document.createElement("div");
-Canvas.classList.add("canvas");
+
+Serzone.canvas = document.createElement("div");
+Serzone.canvas.classList.add("canvas");
 
 /*
  * CSS Class
@@ -217,11 +218,12 @@ function Step (order, obj, name, parent) {
 	Object.defineProperties( this, {
 		obj   : { value : obj,   writable : true,  configurable : false },
 		name  : { value : name,  writable : false, configurable : false },
-		//type  : { value : undefined writable : false, configurable : false },
 
 		init : {
 			value : function (other) {
-				Serzone.state.history = this.obj;
+				if (this.obj instanceof Slide && this.obj != {}) {
+					Serzone.state.history = this.obj;
+				}
 
 				return Serzone.action[name].init(this);
 			},
@@ -230,7 +232,9 @@ function Step (order, obj, name, parent) {
 		},
 		fire : {
 			value : function (other) {
-				Serzone.state.history = this.obj;
+				if (this.obj instanceof Step) {
+					Serzone.state.history = this.obj;
+				}
 
 				return Serzone.action[name].fire(this);
 			},
@@ -269,9 +273,7 @@ function Slide (order, elem, parent) {
 	this.body.classList.add("slide");
 
 	var self = this;
-	arrayify(elem.childNodes).filter( function (child) {
-		return child.tagName != "SECTION";
-	}).forEach( function (child) {
+	arrayify(elem.childNodes).forEach( function (child) {
 		self.body.appendChild(child.cloneNode(true));
 	}); 
 }
@@ -282,10 +284,16 @@ Slide.prototype.constructor = Slide;
 Object.defineProperties(Slide.prototype, {
 	steps : {
 		get : function () {
-			function getSlideSteps (elem, parent, order) {
-				var step = new Step(order, elem, elem.getAttribute("action"), parent);
+			var self = this;
+			var children = this.children;
 
-				step.children = containedDirectlyNodes(".step", elem).map(
+			function getSlideSteps (elem, parent, order) {
+				var name = ( (elem.tagName == "SECTION") ? "changeSlide" : elem.getAttribute("action") );
+				var e    = ( (name == "changeSlide") ? children.shift() : elem );
+
+				var step = new Step(order, e, name, parent);
+
+				step.children = containedDirectlyNodes(".step, section", elem).map(
 					function (e, i) { return getSlideSteps(e, step, i); }
 				);
 
@@ -298,7 +306,7 @@ Object.defineProperties(Slide.prototype, {
 			}
 
 			if (this.$steps == undefined) {
-				this.$steps = containedDirectlyNodes(".step", this.body).map(
+				this.$steps = containedDirectlyNodes(".step, section", this.body).map(
 					function (e, i) { return getSlideSteps(e, null, i); }
 				);
 				this.$steps.forEach( function (s, i, steps) {
@@ -353,7 +361,7 @@ var Parser = {
 
 		this.slides = containedDirectlyNodes("section", byId("serzone")).map(
 			function (section, i, serzoneChildren) {
-				var order = (i == 0 ? 0 : $("section", serzoneChildren[i-1]).length + 1);
+				var order = (i == 0 ? 0 : $("section", serzoneChildren[i - 1]).length + 1);
 				
 				return parseSlides(section, order);
 			}
@@ -398,73 +406,96 @@ var Parser = {
 /*
  * Spike Class
  */
-function Spike (slide) {
-	Object.defineProperties(this, {
-		$slide       : { value : slide, writable : false, configurable : false },	// Step Object
-		$count       : { value : 0,     writable : true,  configurable : false },
-		$stack       : { value : [],    writable : true,  configurable : false },
-		$eventType   : {
-			value : {
-				next : {
-					mouse   : ["click"],
-					keycode : [32, 39]
-				},
-				previous : {
-					mouse   : undefined,
-					keycode : [37]
-				}
-			},
-			writable     : false,
-			configurable : false
-		},
+var Spike = {
+	$eventType : {
 		next : {
-
+			mouse   : ["click"],
+			keycode : [32, 39]
+		},
+		previous : {
+			mouse   : undefined,
+			keycode : [37]
 		}
-	});
+	},
+	$slide : undefined, // Step Object
+	$stack : [],
 
-	this.$stack.push(slide);
-	this.$stack = this.$stack.concat(slide.descendants);
+	next : function () {
+		var step = this.$stack.shift();
 
-	this.$stack.forEach( function (s) {
-		s.init();
-	});
-};
+		if (step != undefined) {
+			step.fire();
+		}
 
-Object.defineProperties(Spike.prototype, {
-	next : {
-		get : function () { this.$stack.push(); }
+		if (this.$stack.length <= 0) {
+			if (this.$slide.nextSibling != null) {
+				this.$slide = this.$slide.nextSibling;
+
+				this.$slide.init();
+
+				this.$stack = (function rec (c) {
+					return c.children.reduce( (function (x, y) {
+						y.init();
+						x = x.concat(y)
+						if (y.children.length > 0) {
+							return x.concat( rec(y) );
+						} else {
+							return x;
+						}
+					}), []);
+				}(this.$slide));
+
+				this.$stack.push(this.$slide);
+			}
+		}
 	},
 
-	init : function () {
+	start : function (slide) {
+		this.$slide = slide;
+
+		this.$slide.init();
+		this.$slide.children.forEach (function (e) {
+			e.init();
+		});
+		this.$stack = [].concat(this.$slide.children);
+		this.$stack.push(this.$slide);
+	
+		this.setEvent();
+	},
+
+	setEvent : function () {
 		// next
 		var self = this;
 		this.$eventType.next.mouse.forEach(
 			function (e) {
 				document.body.addEventListener(e, function () {
-					self.next.fire();
+					self.next();
 				});
 			}
 		);
 
 		document.body.addEventListener("keypress", function(e) {
 			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
-				self.next.fire();
+				self.next();
 			}
 		});
 	}
-});
+};
 
 Serzone.start = function () {
-	document.body.insertBefore(Canvas, byId("serzone"));
+	// make canvas
+	document.body.insertBefore(this.canvas, byId("serzone"));
 
+	// Parse
 	Parser.init();
 	Parser.parse();
 	this.slides = Parser.slides;
 	this.steps  = Parser.steps;
 
+	// make State
 	this.state = Object.defineProperties({}, {
-		currentSlide : { value : 0, writable : true, configurable : false },
-		currentStep  : { value : 0, writable : true, configurable : false },
+		currentSlide : { value : -1, writable : true, configurable : false },
+		currentStep  : { value : -1, writable : true, configurable : false },
 		
 		history : (function () {
 			var h = [];
@@ -487,14 +518,14 @@ Serzone.start = function () {
 					}
 
 					this.currentStep++;
+
 					h.push(e);
 				}
 			};
 		}())
 	});
+
+	Spike.start(this.steps[0]);
 };
 
 //}());
-//
-//
-//

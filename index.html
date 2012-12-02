@@ -17,23 +17,31 @@ function arrayify (e) {
 Serzone.action = {
 	changeSlide : {
 		type : "next",
-		init : function (slide, canvas, other) {
+		init : function (o) {
+			var slide = o.obj;
+
 			if (slide.order == 0) {
 				document.getElementById("serzone").style.color = "white";
 			}
 
-			canvas.appendChild(slide.body);
+			Serzone.canvas.appendChild(slide.body);
+			console.log("change Slide init");
+
 		},
-		fire : function (slide, canvas) {
-			canvas.removeChild(slide.body);
+		fire : function (o) {
+			console.log("change Slide fire" + o.obj.body.innerHTML);
 		}
 	},
 
 
 	hoge : {
 		type : "hoge",
-		init : function () { return "hoge" },
-		fire : function () { }
+		init : function (o) {
+			console.log("change hoge init" + o.obj.innerHTML);
+		},
+		fire : function (o) {
+			console.log("change hoge fire" + o.obj.innerHTML);		
+		}
 	}
 };
 </script>
@@ -41,12 +49,27 @@ Serzone.action = {
 <div id="serzone">
 
 <section>
+	<h1>aaa</h1>
+</section>
+
+<section>
 	<h1>Serzone.js</h1>
 
 	<p>@yoshimura_yuu</p>
 
 	<p>aaaaa</p>
-	
+	<div class="step" action="hoge">
+		hoge1
+	</div>
+
+	<div class="step" action="hoge">
+		hoge2
+	</div>
+
+
+	<section>
+		auao
+	</section>
 </section>
 
 <section>
@@ -68,7 +91,7 @@ Serzone.action = {
 
 <script src="js/Serzone.js"></script>
 <script>
-Serzone.init();
+Serzone.start();
 </script>
 
 </body>

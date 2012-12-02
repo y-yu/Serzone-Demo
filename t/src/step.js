@@ -51,6 +51,27 @@ StepTest.prototype.setUp = function () {
 					</div>
 				</div>
 			</section>
+
+			<section>
+				<h1>Step 2 (Change Slide)</h1>
+
+				<div class="step" action="hoge">
+					Step 2-0
+				</div>
+
+				<section>
+					<h1>Step 2-1 (Change Slide)</h1>
+
+					<div class="step" action="hoge">
+						Step 2-1-0
+					<div>
+				</section>
+
+				<div class="step" action="hoge">
+					Step 2-0
+				</div>
+
+			</section>
 		</div>
 	*/
 
@@ -62,7 +83,7 @@ StepTest.prototype["test Serzone has steps prototype, which is instanceof Array"
 };
 
 StepTest.prototype["test length of steps equal slide length"] = function () {
-	assertEquals(2, Serzone.steps.length);
+	assertEquals(3, Serzone.steps.length);
 };
 
 StepTest.prototype["test name of steps which slide has are changeSlide"] = function () {
@@ -142,8 +163,8 @@ StepTest.prototype["test siblings property"] = function () {
 	var step0 = Serzone.steps[0];
 	var step1 = Serzone.steps[1];
 
-	assertEquals(1, step0.siblings.length);
-	assertEquals(1, step1.siblings.length);
+	assertEquals(2, step0.siblings.length);
+	assertEquals(2, step1.siblings.length);
 	assertEquals(step1, step0.siblings[0]);
 	assertEquals(step0, step1.siblings[0]);
 
@@ -167,9 +188,11 @@ StepTest.prototype["test siblings property"] = function () {
 StepTest.prototype["test nextSibling property"] = function () {
 	var step0 = Serzone.steps[0];
 	var step1 = Serzone.steps[1];
+	var step2 = Serzone.steps[2];
 
 	assertEquals(step1, step0.nextSibling);
-	assertNull(step1.nextSibling);
+	assertEquals(step2, step1.nextSibling);
+	assertNull(step2.nextSibling);
 
 	var step0_0 = step0.children[0];
 	var step0_1 = step0.children[1];
@@ -181,6 +204,7 @@ StepTest.prototype["test nextSibling property"] = function () {
 StepTest.prototype["test next property"] = function () {
 	var step0 = Serzone.steps[0];
 	var step1 = Serzone.steps[1];
+	var step2 = Serzone.steps[2];
 	var step0_0 = step0.children[0];
 	var step0_1 = step0.children[1];
 
@@ -192,8 +216,7 @@ StepTest.prototype["test next property"] = function () {
 	var step1_0_0 = step1.children[0].children[0];
 
 	assertEquals(step1_0_0, step1_0.next);
-
-	assertNull(step1_0_0.next.next.next);
+	assertEquals(step2, step1_0_0.next.next.next);
 };
 
 StepTest.prototype["test init and fire method is instance of Fuction"] = function () {
@@ -210,55 +233,5 @@ StepTest.prototype["test init and fire method"] = function () {
 	assertEquals("changeSlide fire", step.fire());
 	assertEquals("hoge init", step.next.init());
 	assertEquals("hoge fire", step.next.fire());
-};
-
-StepTest.prototype["test state property of Serzone Object"] = function () {
-	var state = Serzone.state;
-
-	assertEquals(0, state.currentSlide);
-	assertEquals(0, state.currentStep);
-	assertUndefined(state.history);
-};
-
-StepTest.prototype["test state.currentSlide property increment"] = function () {
-	var state = Serzone.state;
-	var steps = Serzone.steps;
-
-	assertEquals("changeSlide", steps[0].name);
-	steps[0].fire();
-	assertEquals(1, state.currentSlide);
-
-	assertNotEquals("changeSlide", steps[0].next.name);
-	steps[0].next.fire();
-	assertEquals(1, state.currentSlide);
-};
-
-StepTest.prototype["test state.currentStep property increment"] = function () {
-	var state = Serzone.state;
-	var steps = Serzone.steps;
-
-	assertEquals("changeSlide", steps[0].name);
-	steps[0].fire();
-	assertEquals(1, state.currentStep);
-
-	assertNotEquals("changeSlide", steps[0].next.name);
-	steps[0].next.fire();
-	assertEquals(2, state.currentStep);
-};
-
-StepTest.prototype["test history prototype"] = function () {
-	var state = Serzone.state;
-	var steps = Serzone.steps;
-
-	steps[0].fire();
-
-	var pre = state.history;
-	assertTrue(pre instanceof Slide);
-
-	assertUndefined(state.history);
-
-	steps[0].next.fire();
-	pre = state.history;
-	assertTrue(pre instanceof HTMLElement);
 };
 
