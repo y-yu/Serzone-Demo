@@ -158,15 +158,9 @@ Object.defineProperties(Tree.prototype, {
 
 	descendants : {
 		get : function () {
-			var descendants = this.children;
-
-			this.children.filter( function (c) {
-				return c.descendants.length > 0;
-			}).forEach( function (c) {
-				descendants = descendants.concat(c.descendants);
-			});
-
-			return descendants;
+			return this.children.reduce( 
+				(function (x, y) { return x.concat(y.descendants); }), this.children
+			);
 		},
 
 		configurable : false
@@ -205,6 +199,23 @@ Object.defineProperties(Tree.prototype, {
 		},
 
 		configurable : false
+	},
+
+	previous : {
+		get : function () {
+			var self = this;
+			var candidate = this.siblings.filter( function (e) {
+				return e.order < self.order;
+			}).pop();
+
+			if (candidate == undefined) {
+				return this.parent;
+			} else if (candidate.next == this) {
+				return candidate;
+			} else {
+				return candidate.descendants.pop();
+			}
+		}
 	}
 });
 
@@ -218,12 +229,12 @@ function Step (order, obj, name, parent) {
 	Object.defineProperties( this, {
 		obj   : { value : obj,   writable : true,  configurable : false },
 		name  : { value : name,  writable : false, configurable : false },
+		type  : { value : Serzone.action[name].type, writable : false, configurable : false },
+		flag  : { value : false, writable : true, configurable : false },
 
 		init : {
 			value : function (other) {
-				if (this.obj instanceof Slide && this.obj != {}) {
-					Serzone.state.history = this.obj;
-				}
+				this.flag = true;
 
 				return Serzone.action[name].init(this);
 			},
@@ -232,11 +243,11 @@ function Step (order, obj, name, parent) {
 		},
 		fire : {
 			value : function (other) {
-				if (this.obj instanceof Step) {
-					Serzone.state.history = this.obj;
+				if (this.flag) {
+					return Serzone.action[name].fire(this);
+				} else {
+					return this.init(this);
 				}
-
-				return Serzone.action[name].fire(this);
 			},
 			writable : false,
 			configurable : false
@@ -284,23 +295,37 @@ Slide.prototype.constructor = Slide;
 Object.defineProperties(Slide.prototype, {
 	steps : {
 		get : function () {
-			var self = this;
-			var children = this.children;
+			var self  = this,
+				count = 0;
 
 			function getSlideSteps (elem, parent, order) {
-				var name = ( (elem.tagName == "SECTION") ? "changeSlide" : elem.getAttribute("action") );
-				var e    = ( (name == "changeSlide") ? children.shift() : elem );
+				if (elem.tagName == "SECTION") {
+					var step = new Step(order, self.children[count], "changeSlide", parent);
 
-				var step = new Step(order, e, name, parent);
+					self.body.removeChild(elem);
 
-				step.children = containedDirectlyNodes(".step, section", elem).map(
-					function (e, i) { return getSlideSteps(e, step, i); }
-				);
+					step.children = self.children[count++].steps;
+				} else {
+					var step = new Step(order, elem, elem.getAttribute("action"), parent);
 
-				step.children.forEach( function (s, i, steps) {
-					s.siblings = steps.slice(0, i);
-					s.siblings = steps.slice(i + 1);
-				});
+					step.children = containedDirectlyNodes(".step, section", elem).map(
+						function (e, i) {
+							var s = new Step(order, self.children[count], "changeSlide", step);
+							if (e.tagName == "SECTION") {
+								s.children = self.children[count++].steps;
+
+								return s;
+							} else {
+								return getSlideSteps(e, step, i);
+							}
+						}
+					);
+
+					step.children.forEach( function (s, i, steps) {
+						s.siblings = steps.slice(0, i);
+						s.siblings = steps.slice(i + 1);
+					});
+				}
 
 				return step;
 			}
@@ -420,6 +445,37 @@ var Spike = {
 	$slide : undefined, // Step Object
 	$stack : [],
 
+	refreshStack : function () {
+		var self = this;
+
+		this.$stack = (function rec (c) {
+			c.init(); 
+
+			if (c.children.length == 0) {
+				return [c];
+
+			} else {
+				return c.children.reduce( (function (x, y) {
+					if (y.type == "inherit") {
+						return x.concat( rec(y) );
+					} else {
+						return x.concat( {
+							fire : function () {
+								y.fire();
+
+								self.$stack = y.children.reduce(
+									(function (x2, y2) { return x2.concat(rec(y2)); }), []
+								).concat(self.$stack);
+							}
+						} );
+					}
+				}), []);
+			}
+		}(this.$slide));
+
+		this.$stack.push(this.$slide);
+	},
+
 	next : function () {
 		var step = this.$stack.shift();
 
@@ -431,35 +487,14 @@ var Spike = {
 			if (this.$slide.nextSibling != null) {
 				this.$slide = this.$slide.nextSibling;
 
-				this.$slide.init();
-
-				this.$stack = (function rec (c) {
-					return c.children.reduce( (function (x, y) {
-						y.init();
-						x = x.concat(y)
-						if (y.children.length > 0) {
-							return x.concat( rec(y) );
-						} else {
-							return x;
-						}
-					}), []);
-				}(this.$slide));
-
-				this.$stack.push(this.$slide);
+				this.refreshStack();
 			}
 		}
 	},
 
 	start : function (slide) {
 		this.$slide = slide;
-
-		this.$slide.init();
-		this.$slide.children.forEach (function (e) {
-			e.init();
-		});
-		this.$stack = [].concat(this.$slide.children);
-		this.$stack.push(this.$slide);
-	
+		this.refreshStack();
 		this.setEvent();
 	},
 
@@ -478,7 +513,7 @@ var Spike = {
 			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
 				self.next();
 			}
-		});
+		}, true);
 	}
 };
 
@@ -491,39 +526,6 @@ Serzone.start = function () {
 	Parser.parse();
 	this.slides = Parser.slides;
 	this.steps  = Parser.steps;
-
-	// make State
-	this.state = Object.defineProperties({}, {
-		currentSlide : { value : -1, writable : true, configurable : false },
-		currentStep  : { value : -1, writable : true, configurable : false },
-		
-		history : (function () {
-			var h = [];
-
-			return {
-				get : function () {
-					var e = h.pop();
-
-					if (e instanceof Slide) {
-						this.currentSlide--;
-					}
-
-					this.currentStep--;
-
-					return e;
-				},
-				set : function (e) {
-					if (e instanceof Slide) {
-						this.currentSlide++;
-					}
-
-					this.currentStep++;
-
-					h.push(e);
-				}
-			};
-		}())
-	});
 
 	Spike.start(this.steps[0]);
 };

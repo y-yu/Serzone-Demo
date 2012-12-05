@@ -3,7 +3,8 @@
     <meta charset="utf-8" />
     <title>Serzone.js</title>
     
-    <meta name="author" content="yoshimuraYuu" />
+	<meta name="author" content="yoshimuraYuu" />
+	<link href="css/default.css" rel="stylesheet" />
 </head>
 <body>
 <script>
@@ -21,26 +22,74 @@ Serzone.action = {
 			var slide = o.obj;
 
 			if (slide.order == 0) {
-				document.getElementById("serzone").style.color = "white";
+				document.body.removeChild( document.getElementById("serzone") );
 			}
 
-			Serzone.canvas.appendChild(slide.body);
-			console.log("change Slide init");
+			if (slide.depth == 0) {
+				if (slide.order > 0) {
+					Serzone.canvas.removeChild(slide.previous.body);
+				}
+				Serzone.canvas.appendChild(slide.body);
 
+				var tbody = document.createElement("tbody");
+				tbody.appendChild(
+					slide.children.map( function (s) {
+						var td = document.createElement("td");
+						td.style.border = "1px #000 solid";
+						td.appendChild(s.body);
+						return td;
+					}).reduce( (function (tr, td) {
+						tr.appendChild(td);
+						return tr;
+					}), document.createElement("tr")) );
+
+				var table = document.createElement("table");
+				table.appendChild(tbody);
+				var scale = 0.5; //1 / slide.children.length - (0.25 * (1 / slide.children.length));
+				table.style.webkitTransform = "scale(" + scale + "," + scale + ")";
+				table.style.border = "0px #000 none";
+
+				//slide.body.style.border = "1px #00F solid";
+				slide.body.appendChild(table);
+				Serzone.canvas.appendChild(slide.body);
+				table.style.webkitTransformOrigin = "100px";
+			} else {
+				Serzone.canvas.removeChild(slide.previous.body);
+				Serzone.canvas.appendChild(slide.body);
+			}
+
+			console.log("Slide init");
 		},
 		fire : function (o) {
-			console.log("change Slide fire" + o.obj.body.innerHTML);
+			var slide = o.obj;
+
+			if (slide.depth > 0) {
+				Serzone.canvas.removeChild
+			}
+			console.log("Slide fire");
 		}
 	},
 
 
-	hoge : {
-		type : "hoge",
+	appear : {
+		type : "inherit",
 		init : function (o) {
-			console.log("change hoge init" + o.obj.innerHTML);
+			o.obj.style.color = "white";
+			console.log("appear init");
 		},
 		fire : function (o) {
-			console.log("change hoge fire" + o.obj.innerHTML);		
+			o.obj.style.color = "black";
+			console.log("appear fire");		
+		}
+	},
+
+	test : {
+		type : "test",
+		init : function (o) {
+			console.log("test init");
+		},
+		fire : function (o) {
+			console.log("test fire");
 		}
 	}
 };
@@ -49,43 +98,23 @@ Serzone.action = {
 <div id="serzone">
 
 <section>
-	<h1>aaa</h1>
-</section>
-
-<section>
 	<h1>Serzone.js</h1>
 
-	<p>@yoshimura_yuu</p>
-
-	<p>aaaaa</p>
-	<div class="step" action="hoge">
-		hoge1
-	</div>
-
-	<div class="step" action="hoge">
-		hoge2
-	</div>
-
-
-	<section>
-		auao
-	</section>
+	<br>
+	<br>
+	<br>
+	<br>
+	<p class="r">吉村　優</p>
 </section>
 
 <section>
-	<h1>What is it?</h1>
+	<h1>概要</h1>
 
 	<section>
-		<p style="font-size: 80px;">It's a </p>
-		<p style="text-align: center; font-size: 60px;"><b>Presentation Framework</b></p>
-		<p style="text-align: center;">based on<p>
-		<p style="text-align: center; font-size: 100px;">HTML & CSS3</p>
+		<h1>プレゼンテーションシステム</h1>
 	</section>
-
-	<div class="step" action="hoge">
-		T
-	</div>
 </section>
+
 
 </div>
 
