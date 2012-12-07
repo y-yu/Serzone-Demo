@@ -449,32 +449,19 @@ var Spike = {
 		var self = this;
 
 		this.$stack = (function rec (c) {
-			var stack = [];
-
 			if (c.type == "inherit") {
-				c.init(); 
+				c.init();
+				return [c];
 			} else {
-				stack.push(c);
-			}
+				return [ {
+					fire : function () {
+						c.fire();
 
-			if (c.children.length == 0) {
-				return stack.concat(c);
-			} else {
-				return stack.concat( c.children.reduce( (function (x, y) {
-					if (y.type == "inherit") {
-						return x.concat( rec(y) );
-					} else {
-						return x.concat( {
-							fire : function () {
-								y.fire();
-
-								self.$stack = y.children.reduce(
-									(function (x2, y2) { return x2.concat(rec(y2)); }), []
-								).concat(y).concat(self.$stack);
-							}
-						} );
+						self.$stack = c.children.reduce(
+							(function (x, y) { return x.concat( rec(y) ); }), []
+						).concat(c).concat(self.$stack);
 					}
-				}), []));
+				} ];
 			}
 		}(this.$slide));
 	},
