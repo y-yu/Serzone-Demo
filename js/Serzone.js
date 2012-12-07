@@ -435,7 +435,7 @@ var Spike = {
 	$eventType : {
 		next : {
 			mouse   : ["click"],
-			keycode : [32, 39]
+			keycode : [32, 39, 40]
 		},
 		previous : {
 			mouse   : undefined,
@@ -449,13 +449,18 @@ var Spike = {
 		var self = this;
 
 		this.$stack = (function rec (c) {
-			c.init(); 
+			var stack = [];
+
+			if (c.type == "inherit") {
+				c.init(); 
+			} else {
+				stack.push(c);
+			}
 
 			if (c.children.length == 0) {
-				return [c];
-
+				return stack.concat(c);
 			} else {
-				return c.children.reduce( (function (x, y) {
+				return stack.concat( c.children.reduce( (function (x, y) {
 					if (y.type == "inherit") {
 						return x.concat( rec(y) );
 					} else {
@@ -465,15 +470,13 @@ var Spike = {
 
 								self.$stack = y.children.reduce(
 									(function (x2, y2) { return x2.concat(rec(y2)); }), []
-								).concat(self.$stack);
+								).concat(y).concat(self.$stack);
 							}
 						} );
 					}
-				}), []);
+				}), []));
 			}
 		}(this.$slide));
-
-		this.$stack.push(this.$slide);
 	},
 
 	next : function () {
@@ -496,6 +499,7 @@ var Spike = {
 		this.$slide = slide;
 		this.refreshStack();
 		this.setEvent();
+		this.next();
 	},
 
 	setEvent : function () {
@@ -509,7 +513,7 @@ var Spike = {
 			}
 		);
 
-		document.body.addEventListener("keypress", function(e) {
+		document.body.addEventListener("keydown", function(e) {
 			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
 				self.next();
 			}

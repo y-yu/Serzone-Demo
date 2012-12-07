@@ -15,6 +15,63 @@ function arrayify (e) {
 	return Array.prototype.slice.call(e);
 }
 
+function makeIndex (slide, now) {
+	if (slide.body.getElementsByClassName("indexTable")[0] != undefined) {
+		slide.body.removeChild( slide.body.getElementsByClassName("indexTable")[0] );
+	}
+
+	var table = document.createElement("table");
+	table.appendChild(
+		slide.children.map( function (s) {
+			var td = document.createElement("td");
+
+			if (s.order <= now) {
+				td.appendChild(s.body);
+			} else {
+				td.appendChild( s.body.getElementsByTagName("h1")[0].cloneNode(true) );
+			}
+
+			return td;
+		}).reduce( (function(x, y) {
+			if (x[x.length - 1].length < 2) {
+				x[x.length - 1].push(y);
+			} else {
+				x.push([y]);
+			}
+
+			return x;
+		}), [[]]).reduce( (function (tbody, tds) {
+			var tr = tds.reduce( (function (x, y) {
+				x.appendChild(y);
+				return x;
+			}), document.createElement("tr") );
+
+			tbody.appendChild(tr);
+			return tbody;
+		}),	document.createElement("tbody")) );
+
+	table.classList.add("indexTable");
+
+	table.style.marginTop = "30px";
+	table.style.marginBottom = "10px";
+
+	return table;
+}
+
+function getOffset (e) {
+	var x = 0,
+		y = 0;
+
+	while (e != null) {
+		x += e.offsetLeft;
+		y += e.offsetTop;
+
+		e = e.offsetParent;
+	}
+
+	return { x : x, y : y };
+}
+
 Serzone.action = {
 	changeSlide : {
 		type : "next",
@@ -23,39 +80,54 @@ Serzone.action = {
 
 			if (slide.order == 0) {
 				document.body.removeChild( document.getElementById("serzone") );
+				Serzone.canvas.style.webkitTransition = "all 1s ease-in-out 0ms";
 			}
 
-			if (slide.depth == 0) {
-				if (slide.order > 0) {
-					Serzone.canvas.removeChild(slide.previous.body);
+			if (slide.children.length == 0) {
+				if (slide.depth > 0) {
+					var parent = slide.parent.body.parentNode;
+					var table = makeIndex(slide.parent, slide.order);
+
+					parent.removeChild(slide.parent.body);
+
+					slide.parent.body.appendChild(table);
+					parent.appendChild(slide.parent.body);
+					var offset = getOffset(slide.body.parentNode);
+
+					Serzone.canvas.style.webkitTransform = "translate(" + (100 - offset.x) + 
+						"px, " + (10 - offset.y) + "px)";
+				} else {	
+					Serzone.canvas.appendChild(slide.body);
+					Serzone.canvas.style.webkitTransform = "translate(" + (100 - slide.body.offsetLeft) + 
+						"px, " + (10 - slide.body.offsetTop) + "px)";
 				}
-				Serzone.canvas.appendChild(slide.body);
-
-				var tbody = document.createElement("tbody");
-				tbody.appendChild(
-					slide.children.map( function (s) {
-						var td = document.createElement("td");
-						td.style.border = "1px #000 solid";
-						td.appendChild(s.body);
-						return td;
-					}).reduce( (function (tr, td) {
-						tr.appendChild(td);
-						return tr;
-					}), document.createElement("tr")) );
-
-				var table = document.createElement("table");
-				table.appendChild(tbody);
-				var scale = 0.5; //1 / slide.children.length - (0.25 * (1 / slide.children.length));
-				table.style.webkitTransform = "scale(" + scale + "," + scale + ")";
-				table.style.border = "0px #000 none";
-
-				//slide.body.style.border = "1px #00F solid";
-				slide.body.appendChild(table);
-				Serzone.canvas.appendChild(slide.body);
-				table.style.webkitTransformOrigin = "100px";
 			} else {
-				Serzone.canvas.removeChild(slide.previous.body);
-				Serzone.canvas.appendChild(slide.body);
+				if (slide.depth > 0) {
+					Serzone.canvas.removeChild(slide.parent.body);
+
+					var table = makeIndex(slide, slide.order);
+					table.style.webkitTransform = "scale(0.5, 0.5)";
+					table.style.webkitTransformOrigin = "left top";
+					slide.body.appendChild(table);
+					
+					table = makeIndex(slide.parent, slide.order);
+					slide.parent.body.appendChild(table);
+					Serzone.canvas.appendChild(slide.parent.body);
+
+					offset = getOffset(slide.body.parentNode);	
+				} else {
+					var table = makeIndex(slide, slide.order);
+					table.style.webkitTransform = "scale(0.5, 0.5)";
+					table.style.webkitTransformOrigin = "left top";
+
+					slide.body.appendChild(table);
+					Serzone.canvas.appendChild(slide.body);
+
+					var offset = getOffset(slide.body);	
+				}
+
+				Serzone.canvas.style.webkitTransform = "translate(" + (100 - offset.x) + 
+					"px, " + (10 - offset.y) + "px)";
 			}
 
 			console.log("Slide init");
@@ -64,7 +136,20 @@ Serzone.action = {
 			var slide = o.obj;
 
 			if (slide.depth > 0) {
-				Serzone.canvas.removeChild
+				var parent = slide.parent.body.parentNode;
+				parent.removeChild(slide.parent.body);
+
+				var table = makeIndex(slide.parent, slide.order);
+				table.style.webkitTransform = "scale(0.5, 0.5)";
+				table.style.webkitTransformOrigin = "left top";
+
+
+				slide.parent.body.appendChild(table);
+				parent.appendChild(slide.parent.body);
+
+				var offset = getOffset(slide.parent.body);
+				Serzone.canvas.style.webkitTransform = "translate(" + (100 - offset.x) + 
+					"px, " + (10 - offset.y) + "px)";
 			}
 			console.log("Slide fire");
 		}
@@ -98,23 +183,53 @@ Serzone.action = {
 <div id="serzone">
 
 <section>
-	<h1>Serzone.js</h1>
+	<h1>木構造を表現出来るプレゼンテーション作成ツールSerzone.jsの開発</h1>
 
 	<br>
 	<br>
 	<br>
 	<br>
-	<p class="r">吉村　優</p>
+	<p class="r">情報科学類　吉村　優</p>
 </section>
 
 <section>
 	<h1>概要</h1>
 
+	<p>プレゼンテーション</p>
+
 	<section>
 		<h1>プレゼンテーションシステム</h1>
 	</section>
+
+	<section>
+		<h1>技術</h1>
+
+		<div class="step" action="appear">
+			<p>CSS</p>
+		</div>
+		
+		<div class="step" action="appear">
+			<p>JavaScript</p>
+		</div>
+
+		<section>
+			<h1>aueao</h1>
+		</section>
+	</section>
+
+	<section>
+		<h1>hoge</h1>
+	</section>
+
+	<section>
+		<h1>hoge</h1>
+	</section>
 </section>
 
+<section>
+	<h1>あうえおあう</h1>
+
+</section>
 
 </div>
 
