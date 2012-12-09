@@ -419,9 +419,9 @@ var Parser = {
 
 	parse : function () {
 		try {
-			this.init();
-			this.slideParser();
-			this.stepParser();
+		  this.init();
+		  this.slideParser();
+		  this.stepParser();
 		} catch (e) {
 			throw e;
 		}
@@ -451,7 +451,13 @@ var Spike = {
 		this.$stack = (function rec (c) {
 			if (c.type == "inherit") {
 				c.init();
-				return [c];
+				
+				var r = [c];
+				r = r.concat( c.children.reduce( (function (x, y) {
+					return x.concat( rec(y) );
+				}), []));
+
+				return r;
 			} else {
 				return [ {
 					fire : function () {

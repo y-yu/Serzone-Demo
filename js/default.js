@@ -24,7 +24,7 @@ function makeIndex (slide, now, scale) {
 
 			return td;
 		}).reduce( (function(x, y) {
-			if (x[x.length - 1].length < 2) {
+			if (x[x.length - 1].length == 1) {
 				x[x.length - 1].push(y);
 			} else {
 				x.push([y]);
@@ -52,6 +52,8 @@ function makeIndex (slide, now, scale) {
 
 	return table;
 }
+
+var left =  40;
 
 function getOffset (e) {
 	var x = 0,
@@ -89,14 +91,14 @@ Serzone.action = {
 					parent.appendChild(slide.parent.body);
 					var offset = getOffset(slide.body.parentNode);
 
-					Serzone.canvas.style.webkitTransform = "translate(" + (100 - offset.x) + 
+					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
 						"px, " + (10 - offset.y) + "px)";
 
 					table.style.webkitTransform = "scale(1, 1)";
 					table.style.webkitTransformOrigin = "left top";
 				} else {	
 					Serzone.canvas.appendChild(slide.body);
-					Serzone.canvas.style.webkitTransform = "translate(" + (100 - slide.body.offsetLeft) + 
+					Serzone.canvas.style.webkitTransform = "translate(" + (left - slide.body.offsetLeft) + 
 						"px, " + (10 - slide.body.offsetTop) + "px)";
 				}
 			} else {
@@ -113,7 +115,7 @@ Serzone.action = {
 
 					var offset = getOffset(slide.body.parentNode);
 
-					Serzone.canvas.style.webkitTransform = "translate(" + (100 - offset.x) + 
+					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
 						"px, " + (10 - offset.y) + "px)";
 
 					table2.style.webkitTransform = "scale(1, 1)";
@@ -126,7 +128,7 @@ Serzone.action = {
 
 					var offset = getOffset(slide.body);	
 
-					Serzone.canvas.style.webkitTransform = "translate(" + (100 - offset.x) + 
+					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
 						"px, " + (10 - offset.y) + "px)";
 				}
 
@@ -150,7 +152,7 @@ Serzone.action = {
 				parent.appendChild(slide.parent.body);
 				
 				var offset = getOffset(slide.parent.body);
-				Serzone.canvas.style.webkitTransform = "translate(" + (100 - offset.x) + 
+				Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
 					"px, " + (10 - offset.y) + "px)";
 
 				table.style.webkitTransform  = "scale(0.5, 0.5)";
@@ -161,19 +163,17 @@ Serzone.action = {
 		}
 	},
 
-
 	appear : {
 		type : "inherit",
 		init : function (o) {
 			o.obj.style.webkitTransition = "color 0s ease-in-out 0ms"
-			o.obj.style.color = "white";
-			o.obj.style.textShadow = "0 0px 0px #FFF";
 			o.obj.style.webkitTransition = "color 1s ease-in-out 0ms"
 
 			console.log("appear init");
 		},
 		fire : function (o) {
-			o.obj.style.color = "black";
+			o.obj.style.color = "#000";
+			o.obj.style.textShadow = "0 2px 2px rgba(0, 0, 0, .1)";
 			console.log("appear fire");		
 		}
 	},

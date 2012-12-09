@@ -62,33 +62,39 @@ q:before, q:after {
     content: none;
 }
 
-table {
+table.indexTable {
     border-collapse: separate;
     border-spacing: 40px 0px;
 }
 
-td {
+table.indexTable  td {
 	position: relative;
 	white-space: nowrap;
 	padding-right: 30px;
 	padding-bottom: 30px;
 }
 
-p {
-	font-family: 'PT Serif', georgia, serif;
-	padding: 10px;
-}
-
-td > h1 {
+table.indexTable td > h1 {
 	font-size: 200%;
 }
 
-p.c {
+p {
+	font-family: 'PT Serif', georgia, serif;
+	padding: 10px;
+    line-height: 1.2;
+}
+
+.c {
 	text-align: center;
 }
 
 p.r {
 	text-align: right;
+}
+
+div.step[action=appear] {
+	color: rgba(0, 0, 0, 0);
+	text-shadow: 0 0px 0px rgba(0, 0, 0, 0);
 }
 
 body {
@@ -264,7 +270,7 @@ a:hover {
     display: block;
 	/* position: relative; */
 
-    width: 900px;
+    width: 940px;
     /* height: 700px; */
 
     padding: 40px 60px;
