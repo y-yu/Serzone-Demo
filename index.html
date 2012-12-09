@@ -3,72 +3,462 @@
     <meta charset="utf-8" />
     <title>Serzone.js</title>
     
-    <meta name="author" content="yoshimuraYuu" />
+	<meta name="author" content="yoshimuraYuu" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+	<link href="css/default.css" rel="stylesheet" />
+	<link rel="stylesheet" href="highlight/styles/solarized_dark.css">
+	<script src="highlight/highlight.pack.js"></script>
+	<script src="js/default.js"></script>
 </head>
+
 <body>
 <script>
-var Serzone = {};
-Serzone.action = {};
-
-function arrayify (e) {
-	return Array.prototype.slice.call(e);
-}
-
-Serzone.action = {
-	changeSlide : {
-		type : "next",
-		init : function (slide, canvas, other) {
-			if (slide.order == 0) {
-				document.getElementById("serzone").style.color = "white";
-			}
-
-			canvas.appendChild(slide.body);
-		},
-		fire : function (slide, canvas) {
-			canvas.removeChild(slide.body);
-		}
-	},
-
-
-	hoge : {
-		type : "hoge",
-		init : function () { return "hoge" },
-		fire : function () { }
-	}
-};
 </script>
 
 <div id="serzone">
 
 <section>
-	<h1>Serzone.js</h1>
+	<h1>木構造を表現出来るプレゼンテーション作成ツールSerzone.jsの開発</h1>
 
-	<p>@yoshimura_yuu</p>
-
-	<p>aaaaa</p>
-	
+	<div class="c">
+		<p style="font-size: 60px;">Developed</p>
+		<p style="font-size: 30px;">Presentation Framework</p>
+		<p style="font-size: 120px;">Serzone.js</p>
+		<p>which has</p>
+		<p style="font-size: 70px;">Tree Structure</p>
+	</div>
+	<br>
+	<br>
+	<p class="r">Tweet free!</p>
+	<p class="r">情報科学類　201111411　吉村　優</p>
 </section>
 
 <section>
-	<h1>What is it?</h1>
+	<h1>Traditional Presentation</h1>
+
+	<div class="c">
+		<p>These are PowerPoint, KeyNote and so on...</p>
+
+		<table style="margin-left: auto; margin-right: auto;">
+			<tr>
+				<td><img src="img/pp.png" width="120px" height="120px"/></td>
+				<td><img src="img/keynote.jpg" width="120px" height="120px"/></td>
+			</tr>
+		</table>
+	</div>
 
 	<section>
-		<p style="font-size: 80px;">It's a </p>
-		<p style="text-align: center; font-size: 60px;"><b>Presentation Framework</b></p>
-		<p style="text-align: center;">based on<p>
-		<p style="text-align: center; font-size: 100px;">HTML & CSS3</p>
+		<h1>Differences</h1>
+
+		<div class="c">
+			<p>It is Difficult to Get Differences because <b>Binary Data</b></p>
+			<img src="img/binary_img.png" width="70%" height="95%"/>
+		</div>
+
+		<div class="step" action="appear">
+			<p><span class="indent"></span>→ Text Data is Better</p>
+		</div>
 	</section>
 
-	<!--
-	<div class="step" action="hoge">
-		T
+	<section>
+		<h1>Multi-platform</h1>
+
+		<div class="c">
+			<p>Not Exist <b>Compatibility</b> among OS</p>
+			<img src="img/os_logo.png"/>
+		</div>
+
+		<div class="step" action="appear">
+			<p><span class="indent"></span>→ Write Once, Run Anywhere</p>
+		</div>
+	</section>
+
+	<div class="step" action="appear">
+		<p>Presentation should Solve these Problem</p>
 	</div>
-	-->
 </section>
 
+<section>
+	<h1>Morden(?) Framework</h1>
+
+	<section>
+		<h1>Beamer</h1>
+
+		<div class="c">
+			<p>Based on LaTeX, Generate PDF</p>
+			<img src="img/Beamer.png" width="60%" height="80%"/>
+			<p>http://ja.wikipedia.org/wiki/Beamer</p>
+		</div>
+	</section>
+
+	<section>
+		<h1>impress.js</h1>
+
+		<div class="c">
+			<p>Based on HTML &amp; CSS3</p>
+			<img src="img/impress.png" width="70%" height="70%"/>
+			<p>http://bartaz.github.com/impress.js/</p>
+		</div>
+	</section>
+
+	<section>
+		<h1>Prezi</h1>
+
+		<div class="c">
+			<p>Based on Flash</p>
+			<img src="img/prezi.png" width="65%" height="60%"/>
+			<p>http://prezi.com/9ppmmk2bbe8p/specialseminar2011/</p>
+		</div>
+	</section>
+
+	<div class="step" action="appear">
+		<p>These are can't express <b>Tree Structure</b> between Slides</p>
+	</div>
+</section>
+
+<section>
+	<h1>Tree Structure</h1>
+
+	<div class="c" style="background-image: url('img/tree.jpg'); background-position: top center; background-size: contain; background-repeat: no-repeat;">
+		<div style="background: rgba(255, 255, 255, 0.65);">
+			<div class="step" action="appear">
+				<p style="font-size: 100px;">Animations</p>
+				<p>should be Based on</p>
+			</div>
+
+			<div class="step" action="appear">
+				<p style="font-size: 120px;"><b>Tree Structure</b><p>
+				<p>of</p>
+				<p style="font-size: 70px;">Presentation</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section>
+	<h1>Then</h1>
+
+
+	<div class="c" style="background-image: url('img/serzone.svg'); background-size: contain; background-repeat: no-repeat;">
+		<div style="background: rgba(255, 255, 255, 0.8);">
+			<div class="step" action="appear">
+				<p style=" font-size: 130px;">Serzone.js</p>
+				<p>is a</p>
+				<p style=" font-size: 80px;">Presentation Framework</p>
+				<p>based on</p>
+				<p style="font-size: 100px;">HTML, CSS</p>
+				<p>and</p>
+				<p style="font-size: 100px;">JavaScript</p>
+			</div>
+
+			<!--
+			<div class="step" action="appear">
+				<p class="c">and which is implemented</p>
+				<p style="text-align: center; font-size: 85px;"><b>Tree Structure</b></p>
+			</div>
+			-->
+		</div>
+	</div>
+</section>
+
+<section>
+	<h1>Reason</h1>
+
+	<p>Why Select HTML and CSS?</p>
+	<section>
+		<h1>Multi-platform</h1>	
+
+		<div class="c">
+			<p>It Works on Any OS If Chrome Works</p>
+			<img src="img/browsers.png"/>
+		</div>
+	</section>
+
+	<section>
+		<h1>CSS Has Powerful Animation</h1>
+
+		<div class="c">
+			<p>Write Animation based on Text</p>
+			<img src="img/css.png" width="50%" height="80%"/>
+		</div>
+	</section>
+
+	<section>
+		<h1>HTML has Tree Structure</h1>
+
+		<div class="c">
+			<p>HTML Empress Tree Structure</p>
+			<img src="img/html.png"/>
+		</div>
+	</section>
+
+	<section>
+		<h1>Easy to Paste Sorce Code</h1>
+
+		<p>Use <b>highlight.js</b></p>
+		<div class="step" action="src">
+			<pre><code>\NeedsTeXFormat{pLaTeX2e}
+\ProvidesClass{word}
+  [2012/11/03 v1.0
+ Standard WORD class]
+\newcounter{@paper}
+\newif\if@landscape \@landscapefalse
+\newcommand{\@ptsize}{}
+\newif\if@restonecol
+\newif\if@titlepage
+\@titlepagetrue
+\newif\if@openright</code></pre>
+		</div>
+	</section>
+</section>
+
+<section>
+	<h1>Examples 1</h1>
+
+	<p>About Slide</p>	
+	<section>
+		<h1>A Slide</h1>
+
+		<div class="step" action="src">
+			<pre><code>&lt;section&gt;
+	&lt;h1&gt;Head&lt;/h1&gt;
+	&lt;p&gt;Text&lt;/p&gt;
+	&lt;!-- Comment --&gt;
+&lt;/section&gt;</code></pre>
+		</div>
+
+		<br/>
+		<p>This is Table of Child Section</p>
+		<section>
+			<h1>Head</h1>
+
+			<p>Expand Child Section</p>
+		</section>
+
+		<div class="step" action="appear">
+			<p>Inject Nodes of Section into the Table</p>
+		</div>
+	</section>
+
+	<section>
+		<h1>Nested Slide</h1>
+
+		<div class="step" action="src">
+			<pre><code>&lt;section&gt;
+	&lt;h1&gt;Head 1&lt;/h1&gt;
+
+	&lt;p&gt;Text 1&lt;/p&gt;
+	&lt;section&gt;
+		&lt;p&gt;Text 2-1&lt;/p&gt;
+		&lt;h1&gt;Head 2-1&lt;/h1&gt;
+	&lt;/section&gt;
+
+	&lt;section&gt;
+		&lt;p&gt;Text 2-2&lt;/p&gt;
+		&lt;h1&gt;Head 2-2&lt;/h1&gt;
+	&lt;/section&gt;
+&lt;/section&gt;</code></pre>
+		</div>
+
+		<section>
+			<h1>Head 1</h1>
+
+			<p>Text 1</p>
+			<section>
+				<h1>Head 2-1</h2>
+				<p>Text 2-1</p>
+			</section>
+
+			<section>
+				<h1>Head 2-2</h2>
+				<p>Text 2-2</p>
+			</section>
+
+			<div class="step" action="appear">
+				<p>Same Works in Any Point of Tree Structure</p>
+			<div>
+		</section>
+	</section>
+</section>
+
+<section>
+	<h1>Examples 2</h1>
+
+	<p>About Steps</p>
+
+	<section>
+		<h1>Define Step</h1>
+		
+		<p>Step Object which has This Structure</p>
+		<div class="step" action="appear">
+			<dl class="c">
+				<dt>type</dt>
+				<dd><i>inherit</i> or Not</dd>
+				
+				<dt>init</dt>
+				<dd>Initialize Function</dd>
+
+				<dt>fire</dt>
+				<dd>Firing Function</dd>
+			</dl>
+		</div>
+
+		<section>
+			<h1>JS Code</h1>
+
+			<div class="step" action="src">
+				<pre><code>appear : {
+	type : "inherit",
+	init : function (o) {
+		o.obj.style.webkitTransition = "color 0s ease-in-out 0ms"
+		o.obj.style.color = "white";
+		o.obj.style.webkitTransition = "color 1s ease-in-out 0ms"
+	},
+	fire : function (o) {
+		o.obj.style.color = "black";
+	}
+},</code></pre>
+			</div>
+		</section>
+	</section>
+
+	<section>
+		<h1>Use Step</h1>
+
+		<section>
+			<h1>A Step</h1>
+
+			<div class="step" action="src">
+				<pre><code>&lt;div class="step" action="appear"&gt;
+	&lt;p&gt;Appear This Node If keyEvent Occur&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+			</div>
+
+			<div class="step" action="appear">
+				<p>Appear This Node If keyEvent Occur</p>
+			</div>
+
+			<br/>
+			<div class="step c" action="appear">
+				<p><span class="indent"></span>→ Any Works You Can If Implement</p>
+				<p>(e.g., the Animation of moving Slides is Implemented with Same Way)</p>
+			</div>
+		</section>
+
+		<section>
+			<h1>Nested Steps</h1>
+
+			<div class="step" action="src">
+				<pre><code>&lt;div class="step" action="appear"&gt;
+	&lt;p&gt;Step 1&lt;/p&gt;
+	&lt;div class="step" action="appear"&gt;
+		&lt;p&gt;Step 1-1&lt;/p&gt;
+	&lt;/div&gt;
+	&lt;p&gt;Step 2&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+			</div>
+
+			<div class="step" action="appear">
+				<p>Step 1</p>
+				<div class="step" action="appear">
+					<p>Step 1-1</p>
+				</div>
+				<p>Step 2</p>
+			</div>
+		</section>
+	</section>
+</section>
+
+<section>
+	<h1>Other Things</h1>
+
+	<section>
+		<h1>Test-Driven Development</h1>
+
+		<p>Use <b>JsTestDriver</b></p>
+		<p>http://code.google.com/p/js-test-driver/</p>
+
+		<section>
+			<h1>Test Case</h1>
+
+			<div class="step" action="src">
+				<pre><code>SlideTest.prototype["test depth property"] = function () {
+	var slide0 = Serzone.slides[0];
+	var slide1 = Serzone.slides[1];
+
+	assertEquals(0, slide0.depth);
+	assertEquals(0, slide1.depth);
+	slide1.children.forEach( function (c) {
+		assertEquals(1, c.depth);
+	});
+};</code></pre>
+			</div>
+		</section>
+
+	</section>
+
+	<section>
+		<h1>Independ jQuery</h1>
+
+		<div class="c">
+			<p>It is Easiness for <b>JavaScript Fundamentalist</b></p>
+			<img src="img/fundamentalist.jpg"/>
+		</div>
+	</section>
+
+	<section>
+		<h1>Distribute on GitHub</h1>
+
+		<div class="c">
+			<p>https://github.com/yoshimuraYuu/Serzone</p>
+			<img src="img/github.png"/>
+		</div>
+	</section>
+</section>
+
+<section>
+	<h1>Future Works</h1>
+
+	<section>
+		<h1>You Can (not) redo</h1>
+
+		<div class="c">
+			<p>Back Function is NOT yet Implemented</p>
+			<img src="img/redo.gif"/>
+		</div>
+	</section>
+
+	<section>
+		<h1>Random Access</h1>
+
+		<div class="c">
+			<p>One Way Only</p>
+			<img src="img/accelerator.jpg"/>
+		</div>
+	</section>
+</section>
+
+<section>
+	<h1>Fin</h1>
+
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<p class="c" style="font-size: 50px;">Thank you for your attention</p>
+</section>
+
+
+<section>
+	<h1>Quession</h1>
+
+</section>
 </div>
 
 <script src="js/Serzone.js"></script>
+<script>
+Serzone.start();
+</script>
 
 </body>
 </html>
