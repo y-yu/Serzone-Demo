@@ -132,8 +132,6 @@ Serzone.action = {
 						"px, " + (10 - offset.y) + "px)";
 				}
 
-				
-
 				table.style.webkitTransform = "scale(0.5, 0.5)";
 				table.style.webkitTransformOrigin = "left top";
 			}

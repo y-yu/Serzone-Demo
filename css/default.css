@@ -75,7 +75,8 @@ table.indexTable  td {
 }
 
 table.indexTable td > h1 {
-	font-size: 200%;
+	font-size: 220%;
+    color: rgb(102, 102, 102);
 }
 
 p {
