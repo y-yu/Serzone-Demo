@@ -201,11 +201,13 @@ Serzone.action = {
 	dvi : {
 		type : "inherit",
 		init :  function (o) {
+			var file = o.obj.innerHTML.replace("/ /", "");
 			var dvi = document.createElement("dvi");
 			dvi.id = "dvi";
 
 			o.obj.appendChild(dvi);
-			dvi_load("#dvi", o.obj.innerHTML);
+			console.log(file);
+			dvi_load("#dvi", file);
 		},
 		fire : function (o) {
 			var dvi = document.getElementById("dvi");
