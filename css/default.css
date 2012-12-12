@@ -38,8 +38,11 @@ article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
     display: block;
 }
+
 ol, ul {
-    list-style: none;
+    /* list-style: none; */
+	padding-left: 10px;
+	margin-left: 100px;
 }
 
 dt {  

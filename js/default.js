@@ -184,11 +184,11 @@ Serzone.action = {
 			arrayify( o.obj.querySelectorAll("pre code") ).filter(
 				function (e) {
 					return e.nodeType != 3;
-				}
-			).forEach( function (e) {
-				console.log(e);
-				hljs.highlightBlock(e, '<span class="indent"></span>', false);
-			});
+				}).forEach( function (e) {
+					console.log(e);
+					hljs.highlightBlock(e, '<span class="indent"></span>', false);
+				});
+
 			console.log("src init");
 		},
 		fire : function (o) {
