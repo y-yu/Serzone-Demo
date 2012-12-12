@@ -135,7 +135,7 @@ Serzone.action = {
 				table.style.webkitTransform = "scale(0.5, 0.5)";
 				table.style.webkitTransformOrigin = "left top";
 			}
-			console.log("Slide init");
+			//console.log("Slide init");
 		},
 		fire : function (o) {
 			var slide = o.obj;
@@ -157,7 +157,7 @@ Serzone.action = {
 				table.style.webkitTransformOrigin = "left top";
 
 			}
-			console.log("Slide fire");
+			//console.log("Slide fire");
 		}
 	},
 
@@ -167,12 +167,13 @@ Serzone.action = {
 			o.obj.style.webkitTransition = "color 0s ease-in-out 0ms"
 			o.obj.style.webkitTransition = "color 1s ease-in-out 0ms"
 
-			console.log("appear init");
+			//console.log("appear init");
 		},
 		fire : function (o) {
 			o.obj.style.color = "#000";
 			o.obj.style.textShadow = "0 2px 2px rgba(0, 0, 0, .1)";
-			console.log("appear fire");		
+			
+			//console.log("appear fire");		
 		}
 	},
 
@@ -189,11 +190,27 @@ Serzone.action = {
 					hljs.highlightBlock(e, '<span class="indent"></span>', false);
 				});
 
-			console.log("src init");
+			//console.log("src init");
 		},
 		fire : function (o) {
 			o.obj.style.opacity = "0.5";
-			console.log("src fire");
+			//console.log("src fire");
+		}
+	},
+
+	dvi : {
+		type : "inherit",
+		init :  function (o) {
+			var dvi = document.createElement("dvi");
+			dvi.id = "dvi";
+
+			o.obj.appendChild(dvi);
+			dvi_load("#dvi", o.obj.innerHTML);
+		},
+		fire : function (o) {
+			var dvi = document.getElementById("dvi");
+
+			dvi.id = undefined;
 		}
 	}
 };

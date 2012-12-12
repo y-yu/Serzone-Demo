@@ -476,7 +476,6 @@ var Spike = {
 		var step = this.$stack.shift();
 
 		if (step != undefined) {
-			document.location.hash = i + 1;
 			step.fire();
 		}
 
@@ -487,20 +486,20 @@ var Spike = {
 				this.refreshStack();
 			}
 		}
-
-		return i + 1;
 	},
 
 	start : function (slide) {
 		this.$slide = slide;
 		this.refreshStack();
 
-		var n = Number(document.location.hash.replace("#", "")) || 1;
+		var n = (document.location.hash ? Number(document.location.hash.replace("#", "")) : 1);
+		var self = this;
 
 		for (var i=0; i<n; i++) {
-			this.next(i);
+			setTimeout(function () {
+				self.next(i);
+			}, 1);
 		}
-
 		this.setEvent(n);
 	},
 
@@ -511,14 +510,18 @@ var Spike = {
 		this.$eventType.next.mouse.forEach(
 			function (e) {
 				document.body.addEventListener(e, function () {
-					i = self.next(i);
+					self.next(i);
+					i++;
+					document.location.hash = i;
 				});
 			}
 		);
 
 		document.body.addEventListener("keydown", function(e) {
 			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
-				i = self.next(i);
+				self.next(i);
+				i++;
+				document.location.hash = i;
 			}
 		});
 	}
