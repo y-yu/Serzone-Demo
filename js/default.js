@@ -201,18 +201,24 @@ Serzone.action = {
 	dvi : {
 		type : "inherit",
 		init :  function (o) {
-			var file = o.obj.innerHTML.replace("/ /", "");
-			var dvi = document.createElement("dvi");
-			dvi.id = "dvi";
-
-			o.obj.appendChild(dvi);
-			console.log(file);
-			dvi_load("#dvi", file);
+			// var dvi = document.createElement("div");
+			// dvi.id = "div";
+			// o.obj.appendChild(dvi);
 		},
 		fire : function (o) {
-			var dvi = document.getElementById("dvi");
+			var file = o.obj.innerText.replace("/\s/g", "");
+			var dvi  = arrayify(o.obj.childNodes).filter( function (e) {
+				return e.id == "dvi";
+			}).push();
 
-			dvi.id = undefined;
+			dvi_load("#dvi", file);
+
+			arrayify(o.obj.childNodes).filter( function(e) {
+				return e.nodeType == 3;
+			}).forEach( function (e) {
+				o.obj.removeChild(e);
+			});
+			//dvi.id = undefined;
 		}
 	}
 };

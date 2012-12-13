@@ -1,6 +1,6 @@
 "use strict";
 
-//(function () {
+(function () {
 
 /*
  * Utility functions
@@ -435,7 +435,7 @@ var Spike = {
 	$eventType : {
 		next : {
 			mouse   : ["click"],
-			keycode : [32, 39, 40]
+			keycode : [32, 39]
 		},
 		previous : {
 			mouse   : undefined,
@@ -540,4 +540,4 @@ Serzone.start = function () {
 	Spike.start(this.steps[0]);
 };
 
-//}());
+}());
