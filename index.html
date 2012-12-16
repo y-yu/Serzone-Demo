@@ -11,9 +11,9 @@
 	<script src="js/default.js"></script>
 
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-	<script type="text/javascript" src="http://naoyat.github.com/dvi.js/dvi.min.js"></script>
+	<script type="text/javascript" src="./dvi.js/dvi.min.js"></script>
 
-	<link rel="stylesheet" type="text/css" href="http://naoyat.github.com/dvi.js/texfonts.min.css"></style>
+	<link rel="stylesheet" type="text/css" href="./dvi.js/texfonts.min.css"></style>
 </head>
 
 <body>
@@ -124,6 +124,16 @@
 		</div>
 	</section>
 
+	<section>
+		<h1>TermNote</h1>
+
+		<div class="c">
+			<p>Based on Terminal</p>
+			<img src="img/termnote.png" width="65%" height="60%"/>
+			<p>https://github.com/krainboltgreene/termnote</p>
+		</div>
+	</section>
+
 	<div class="step" action="appear">
 		<p>These are can't express <b>Tree Structure</b> between Slides</p>
 	</div>
@@ -204,28 +214,30 @@
 
 			<p>Use <b>Highlight.js</b></p>
 			<div class="step" action="src">
-				<pre><code>\NeedsTeXFormat{pLaTeX2e}
-\ProvidesClass{word}
-  [2012/11/03 v1.0
- Standard WORD class]
-\newcounter{@paper}
-\newif\if@landscape \@landscapefalse
-\newcommand{\@ptsize}{}
-\newif\if@restonecol
-\newif\if@titlepage
-\@titlepagetrue
-\newif\if@openright</code></pre>
+				<pre><code>\title{WORD -25 Edition-, 2013}
+\author{吉村　優}
+\subtitle{Revolution-Girl}
+
+\begin{document}
+\chapter{革命少女}
+\begin{shadebox}\centering\small
+	特に脚注がなければ、
+	この記事に登場する人物、団体名、
+	企画などは実在するものと一切関係ありません。
+\end{shadebox}
+\input{./body.tex}
+\end{document}</code></pre>
 			</div>
 		</section>
 
 		<section>
 			<h1>DVI File from TeX</h1>
 
-			<p>Use <b>jsdvi</b></p>
+			<p>Use <b>dvi.js</b></p>
 
 			<div class="step" action="dvi">
-				./dvi/test.dvi
-				<div id="dvi" style="text-align: center; height: 800px; -webkit-transform-origin: left top; -webkit-transform: translate(0, -150px);"></div>
+				./dvi/main.dvi
+				<div id="dvi" style="text-align: center; height: 900px; -webkit-transform-origin: left top; -webkit-transform: translate(0, -40px);"></div>
 			</div>
 		</section>
 	</section>
@@ -310,7 +322,7 @@
 		
 		<p>Step Object which has This Structure</p>
 		<div class="step" action="appear">
-			<dl class="c">
+		<dl class="c">
 				<dt>type</dt>
 				<dd><i>inherit</i> or Not</dd>
 				
@@ -377,12 +389,20 @@
 &lt;/div&gt;</code></pre>
 			</div>
 
-			<div class="step" action="appear">
-				<p>Step 1</p>
+			<section>
+				<h1>Try</h1>
+
 				<div class="step" action="appear">
-					<p>Step 1-1</p>
+					<p>Step 1</p>
+					<div class="step" action="appear">
+						<p>Step 1-1</p>
+					</div>
+					<p>Step 2</p>
 				</div>
-				<p>Step 2</p>
+			</section>
+
+			<div class="step c" action="appear">
+				<p>Do "apper" on Same Time which Move Slide cause "apper" is Inherit Type</p>
 			</div>
 		</section>
 	</section>
@@ -472,6 +492,23 @@
 </section>
 
 <section>
+	<h1>Spcial Thanks</h1>
+
+	<p>These Are JavaScript Plugin which is Used to Make This Slide</p>
+
+	<br/>
+	<br/>
+
+	<dl class="c">
+		<dt>Highlight.js</dt>
+		<dd>http://softwaremaniacs.org/soft/highlight/en/</dd>
+
+		<dt>dvi.js</dt>
+		<dd>https://github.com/naoyat/dvi.js</dd>
+	</dl>
+</section>
+
+<section>
 	<h1>Fin</h1>
 
 	<br/>
@@ -497,6 +534,5 @@
 <script>
 Serzone.start();
 </script>
-
 </body>
 </html>
