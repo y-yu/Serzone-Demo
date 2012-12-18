@@ -507,15 +507,15 @@ var Spike = {
 		// next
 		var self = this;
 
-		this.$eventType.next.mouse.forEach(
-			function (e) {
-				document.body.addEventListener(e, function () {
-					self.next(i);
-					i++;
-					document.location.hash = i;
-				});
-			}
-		);
+		// this.$eventType.next.mouse.forEach(
+		// 	function (e) {
+		// 		document.body.addEventListener(e, function () {
+		// 			self.next(i);
+		// 			i++;
+		// 			document.location.hash = i;
+		// 		});
+		// 	}
+		// );
 
 		document.body.addEventListener("keydown", function(e) {
 			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
