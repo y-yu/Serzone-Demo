@@ -132,12 +132,10 @@ Serzone.action = {
 						"px, " + (10 - offset.y) + "px)";
 				}
 
-				
-
 				table.style.webkitTransform = "scale(0.5, 0.5)";
 				table.style.webkitTransformOrigin = "left top";
 			}
-			console.log("Slide init");
+			//console.log("Slide init");
 		},
 		fire : function (o) {
 			var slide = o.obj;
@@ -159,7 +157,7 @@ Serzone.action = {
 				table.style.webkitTransformOrigin = "left top";
 
 			}
-			console.log("Slide fire");
+			//console.log("Slide fire");
 		}
 	},
 
@@ -169,12 +167,13 @@ Serzone.action = {
 			o.obj.style.webkitTransition = "color 0s ease-in-out 0ms"
 			o.obj.style.webkitTransition = "color 1s ease-in-out 0ms"
 
-			console.log("appear init");
+			//console.log("appear init");
 		},
 		fire : function (o) {
 			o.obj.style.color = "#000";
 			o.obj.style.textShadow = "0 2px 2px rgba(0, 0, 0, .1)";
-			console.log("appear fire");		
+			
+			//console.log("appear fire");		
 		}
 	},
 
@@ -186,16 +185,40 @@ Serzone.action = {
 			arrayify( o.obj.querySelectorAll("pre code") ).filter(
 				function (e) {
 					return e.nodeType != 3;
-				}
-			).forEach( function (e) {
-				console.log(e);
-				hljs.highlightBlock(e, '<span class="indent"></span>', false);
-			});
-			console.log("src init");
+				}).forEach( function (e) {
+					console.log(e);
+					hljs.highlightBlock(e, '<span class="indent"></span>', false);
+				});
+
+			//console.log("src init");
 		},
 		fire : function (o) {
 			o.obj.style.opacity = "0.5";
-			console.log("src fire");
+			//console.log("src fire");
+		}
+	},
+
+	dvi : {
+		type : "inherit",
+		init :  function (o) {
+			// var dvi = document.createElement("div");
+			// dvi.id = "div";
+			// o.obj.appendChild(dvi);
+		},
+		fire : function (o) {
+			var file = o.obj.innerText.replace("/\s/g", "");
+			var dvi  = arrayify(o.obj.childNodes).filter( function (e) {
+				return e.id == "dvi";
+			}).push();
+
+			dvi_load("#dvi", file);
+
+			arrayify(o.obj.childNodes).filter( function(e) {
+				return e.nodeType == 3;
+			}).forEach( function (e) {
+				o.obj.removeChild(e);
+			});
+			//dvi.id = undefined;
 		}
 	}
 };
