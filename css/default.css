@@ -39,6 +39,11 @@ footer, header, hgroup, menu, nav, section {
     display: block;
 }
 
+::selection {
+	background: #007;
+	color: #FFF;
+}
+
 ol, ul {
     /* list-style: none; */
 	padding-left: 10px;
