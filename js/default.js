@@ -92,14 +92,14 @@ Serzone.action = {
 					var offset = getOffset(slide.body.parentNode);
 
 					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
-						"px, " + (10 - offset.y) + "px)";
+						"px, " + (20 - offset.y) + "px)";
 
 					table.style.webkitTransform = "scale(1, 1)";
 					table.style.webkitTransformOrigin = "left top";
 				} else {	
 					Serzone.canvas.appendChild(slide.body);
 					Serzone.canvas.style.webkitTransform = "translate(" + (left - slide.body.offsetLeft) + 
-						"px, " + (10 - slide.body.offsetTop) + "px)";
+						"px, " + (20 - slide.body.offsetTop) + "px)";
 				}
 			} else {
 				if (slide.depth > 0) {
@@ -116,7 +116,7 @@ Serzone.action = {
 					var offset = getOffset(slide.body.parentNode);
 
 					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
-						"px, " + (10 - offset.y) + "px)";
+						"px, " + (20 - offset.y) + "px)";
 
 					table2.style.webkitTransform = "scale(1, 1)";
 					table2.style.webkitTransformOrigin = "left top";
@@ -129,7 +129,7 @@ Serzone.action = {
 					var offset = getOffset(slide.body);	
 
 					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
-						"px, " + (10 - offset.y) + "px)";
+						"px, " + (20 - offset.y) + "px)";
 				}
 
 				table.style.webkitTransform = "scale(0.5, 0.5)";
@@ -151,7 +151,7 @@ Serzone.action = {
 				
 				var offset = getOffset(slide.parent.body);
 				Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
-					"px, " + (10 - offset.y) + "px)";
+					"px, " + (20 - offset.y) + "px)";
 
 				table.style.webkitTransform  = "scale(0.5, 0.5)";
 				table.style.webkitTransformOrigin = "left top";
