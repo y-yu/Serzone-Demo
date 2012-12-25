@@ -236,7 +236,7 @@ function Step (order, obj, name, parent) {
 			value : function (other) {
 				this.flag = true;
 
-				return Serzone.action[name].init(this);
+				return Serzone.action[name].init(this.obj, this);
 			},
 			writable : false,
 			configurable : false
@@ -244,9 +244,9 @@ function Step (order, obj, name, parent) {
 		fire : {
 			value : function (other) {
 				if (this.flag) {
-					return Serzone.action[name].fire(this);
+					return Serzone.action[name].fire(this.obj, this);
 				} else {
-					return this.init(this);
+					return this.init(this.obj, this);
 				}
 			},
 			writable : false,
@@ -296,21 +296,22 @@ Object.defineProperties(Slide.prototype, {
 	steps : {
 		get : function () {
 			var self  = this,
-				count = 0;
+				count = 0,
+				keys  = Object.keys(Serzone.action).join(",");
 
 			function getSlideSteps (elem, parent, order) {
 				if (elem.tagName == "SECTION") {
-					var step = new Step(order, self.children[count], "changeSlide", parent);
+					var step = new Step(order, self.children[count], "section", parent);
 
 					self.body.removeChild(elem);
 
 					step.children = self.children[count++].steps;
 				} else {
-					var step = new Step(order, elem, elem.getAttribute("action"), parent);
+					var step = new Step(order, elem, elem.tagName.toLowerCase(), parent);
 
-					step.children = containedDirectlyNodes(".step, section", elem).map(
+					step.children = containedDirectlyNodes(keys, elem).map(
 						function (e, i) {
-							var s = new Step(order, self.children[count], "changeSlide", step);
+							var s = new Step(order, self.children[count], "section", step);
 							if (e.tagName == "SECTION") {
 								s.children = self.children[count++].steps;
 
@@ -331,7 +332,7 @@ Object.defineProperties(Slide.prototype, {
 			}
 
 			if (this.$steps == undefined) {
-				this.$steps = containedDirectlyNodes(".step, section", this.body).map(
+				this.$steps = containedDirectlyNodes(keys, this.body).map(
 					function (e, i) { return getSlideSteps(e, null, i); }
 				);
 				this.$steps.forEach( function (s, i, steps) {
@@ -400,7 +401,7 @@ var Parser = {
 	
 	stepParser : function () {
 		this.steps = this.slides.map( function (slide, i) { 
-			var step      = new Step(i, slide, "changeSlide", null);
+			var step      = new Step(i, slide, "section", null);
 
 			slide.steps.forEach( function (s) {
 				s.parent = step;
