@@ -70,11 +70,9 @@ function getOffset (e) {
 }
 
 Serzone.action = {
-	changeSlide : {
+	section : {
 		type : "next",
-		init : function (o) {
-			var slide = o.obj;
-
+		init : function (slide) {
 			if (slide.order == 0) {
 				document.body.removeChild( document.getElementById("serzone") );
 				Serzone.canvas.style.webkitTransition = "-webkit-transform 1s ease-in-out 0ms";
@@ -92,14 +90,14 @@ Serzone.action = {
 					var offset = getOffset(slide.body.parentNode);
 
 					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
-						"px, " + (10 - offset.y) + "px)";
+						"px, " + (20 - offset.y) + "px)";
 
 					table.style.webkitTransform = "scale(1, 1)";
 					table.style.webkitTransformOrigin = "left top";
 				} else {	
 					Serzone.canvas.appendChild(slide.body);
 					Serzone.canvas.style.webkitTransform = "translate(" + (left - slide.body.offsetLeft) + 
-						"px, " + (10 - slide.body.offsetTop) + "px)";
+						"px, " + (20 - slide.body.offsetTop) + "px)";
 				}
 			} else {
 				if (slide.depth > 0) {
@@ -116,7 +114,7 @@ Serzone.action = {
 					var offset = getOffset(slide.body.parentNode);
 
 					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
-						"px, " + (10 - offset.y) + "px)";
+						"px, " + (20 - offset.y) + "px)";
 
 					table2.style.webkitTransform = "scale(1, 1)";
 					table2.style.webkitTransformOrigin = "left top";
@@ -129,7 +127,7 @@ Serzone.action = {
 					var offset = getOffset(slide.body);	
 
 					Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
-						"px, " + (10 - offset.y) + "px)";
+						"px, " + (20 - offset.y) + "px)";
 				}
 
 				table.style.webkitTransform = "scale(0.5, 0.5)";
@@ -137,9 +135,7 @@ Serzone.action = {
 			}
 			//console.log("Slide init");
 		},
-		fire : function (o) {
-			var slide = o.obj;
-
+		fire : function (slide) {
 			if (slide.depth > 0) {
 				var parent = slide.parent.body.parentNode;
 				parent.removeChild(slide.parent.body);
@@ -151,7 +147,7 @@ Serzone.action = {
 				
 				var offset = getOffset(slide.parent.body);
 				Serzone.canvas.style.webkitTransform = "translate(" + (left - offset.x) + 
-					"px, " + (10 - offset.y) + "px)";
+					"px, " + (20 - offset.y) + "px)";
 
 				table.style.webkitTransform  = "scale(0.5, 0.5)";
 				table.style.webkitTransformOrigin = "left top";
@@ -164,25 +160,25 @@ Serzone.action = {
 	appear : {
 		type : "inherit",
 		init : function (o) {
-			o.obj.style.webkitTransition = "color 0s ease-in-out 0ms"
-			o.obj.style.webkitTransition = "color 1s ease-in-out 0ms"
+			o.style.webkitTransition = "color 0s ease-in-out 0ms"
+			o.style.webkitTransition = "color 1s ease-in-out 0ms"
 
-			//console.log("appear init");
+			console.log("appear init");
 		},
 		fire : function (o) {
-			o.obj.style.color = "#000";
-			o.obj.style.textShadow = "0 2px 2px rgba(0, 0, 0, .1)";
+			o.style.color = "#000";
+			o.style.textShadow = "0 2px 2px rgba(0, 0, 0, .1)";
 			
-			//console.log("appear fire");		
+			console.log("appear fire");		
 		}
 	},
 
 	src: {
 		type : "inherit",
 		init : function (o) {
-			o.obj.style.webkitTransition = "opacity .5s linear";
+			o.style.webkitTransition = "opacity .5s linear";
 
-			arrayify( o.obj.querySelectorAll("pre code") ).filter(
+			arrayify( o.querySelectorAll("pre code") ).filter(
 				function (e) {
 					return e.nodeType != 3;
 				}).forEach( function (e) {
@@ -193,7 +189,7 @@ Serzone.action = {
 			//console.log("src init");
 		},
 		fire : function (o) {
-			o.obj.style.opacity = "0.5";
+			o.style.opacity = "0.5";
 			//console.log("src fire");
 		}
 	},
@@ -206,17 +202,17 @@ Serzone.action = {
 			// o.obj.appendChild(dvi);
 		},
 		fire : function (o) {
-			var file = o.obj.innerText.replace("/\s/g", "");
-			var dvi  = arrayify(o.obj.childNodes).filter( function (e) {
+			var file = o.innerText.replace("/\s/g", "");
+			var dvi  = arrayify(o.childNodes).filter( function (e) {
 				return e.id == "dvi";
 			}).push();
 
 			dvi_load("#dvi", file);
 
-			arrayify(o.obj.childNodes).filter( function(e) {
+			arrayify(o.childNodes).filter( function(e) {
 				return e.nodeType == 3;
 			}).forEach( function (e) {
-				o.obj.removeChild(e);
+				o.removeChild(e);
 			});
 			//dvi.id = undefined;
 		}
