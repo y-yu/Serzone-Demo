@@ -71,18 +71,6 @@ q:before, q:after {
     content: none;
 }
 
-table.indexTable {
-    border-collapse: separate;
-    border-spacing: 40px 0px;
-}
-
-table.indexTable  td {
-	position: relative;
-	white-space: nowrap;
-	padding-right: 30px;
-	padding-bottom: 30px;
-}
-
 table.indexTable td > h1 {
 	font-size: 220%;
     color: rgb(102, 102, 102);
@@ -110,7 +98,7 @@ p {
 summary {
 	color: rgb(0, 0, 0);
 	text-align: center;
-    text-shadow: -1px -1px 2px rgba(100,100,100,0.5);
+    text-shadow: 1px 2px 2px rgba(0, 0, 0, .1);
 }
 
 body {
@@ -118,7 +106,7 @@ body {
 	overflow-y: hidden;
 
 	line-height: 1;
-	margin-left: 120px;
+	margin-left: 20px;
     font-family: 'PT Sans', sans-serif;
     
     min-height: 740px;
@@ -150,158 +138,18 @@ a:hover {
     text-shadow: -1px -1px 2px rgba(100,100,100,0.5);
 }
 
-/* COMMON STEP STYLES */
-
-.step {
-    /* width: 1000px;
-    padding: 40px; */
-	-webkit-transition: all 0.5s ease-in-out 0ms;
-
-    -webkit-box-sizing: border-box;
-	box-sizing:         border-box;
-
-    /* font-family: 'PT Serif', georgia, serif; */
-
-    line-height: 1.5;
-}
-
-/* STEP SPECIFIC STYLES */
-
-/* hint on the first slide */
-
-.hint {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 200px;
-    
-    background: rgba(0,0,0,0.5);
-    color: #EEE;
-    text-align: center;
-    
-    font-size: 50px;
-    padding: 20px;
-    
-    z-index: 100;
-    
-    opacity: 0;
-    
-    -webkit-transform: translateY(400px);
-    transform:         translateY(400px);
-
-    -webkit-transition: opacity 1s, -webkit-transform 0.5s 1s;
-    transition:         opacity 1s,         transform 0.5s 1s;
-}
-
-.step-bored + .hint {
-    opacity: 1;
-    
-    -webkit-transition: opacity 1s 5s, -webkit-transform 0.5s;
-    transition:         opacity 1s 5s,         transform 0.5s;
-    
-    -webkit-transform: translateY(0px);
-    transform:         translateY(0px);
-}
-
-
-.step > h1 {
-    font-size: 150px;
-    
-    -webkit-transform: translateZ(50px);
-    -moz-transform:    translateZ(50px);
-    -ms-transform:     translateZ(50px);
-    -o-transform:      translateZ(50px);
-    transform:         translateZ(50px);
-}
-
-#title .footnote {
-    font-size: 32px;
-}
-
-#ing {
-    width: 500px;
-}
-
-#ing b {
-    display: inline-block;
-    -webkit-transition: 0.5s;
-    -moz-transition:    0.5s;
-    -ms-transition:     0.5s;
-    -o-transition:      0.5s;
-    transition:         0.5s;
-}
-
-#ing.active .positioning {
-    -webkit-transform: translateY(-10px);
-    -moz-transform:    translateY(-10px);
-    -ms-transform:     translateY(-10px);
-    -o-transform:      translateY(-10px);
-    transform:         translateY(-10px);
-
-    -webkit-transition-delay: 1.5s;
-    -moz-transition-delay:    1.5s;
-    -ms-transition-delay:     1.5s;
-    -o-transition-delay:      1.5s;
-    transition-delay:         1.5s;
-}
-
-#ing.active .rotating {
-    -webkit-transform: rotate(-10deg);
-    -moz-transform:    rotate(-10deg);
-    -ms-transform:     rotate(-10deg);
-    -o-transform:      rotate(-10deg);
-    transform:         rotate(-10deg);
-
-    -webkit-transition-delay: 1.75s;
-    -moz-transition-delay:    1.75s;
-    -ms-transition-delay:     1.75s;
-    -o-transition-delay:      1.75s;
-    transition-delay:         1.75s;
-}
-
-#ing.active .scaling {
-    -webkit-transform: scale(0.7);
-    -moz-transform:    scale(0.7);
-    -ms-transform:     scale(0.7);
-    -o-transform:      scale(0.7);
-    transform:         scale(0.7);
-
-    -webkit-transition-delay: 2s;
-    -moz-transition-delay:    2s;
-    -ms-transition-delay:     2s;
-    -o-transition-delay:      2s;
-    transition-delay:         2s;
-
-}
-
-/*
- * SLIDE STEP STYLES
- *
- * inspired by: http://html5slides.googlecode.com/svn/trunk/styles.css
- *
- * ;)
- */
-
 .slide {
     display: block;
 	/* position: relative; */
 
-    width: 1100px;
-    /* height: 700px; */
+    width: 1000px;
+	/* height: 700px; */
 
     padding: 40px 60px;
 
     border-radius: 10px;
 
-    background-color: white;
-
-	/*
-    box-shadow: 1px 2px 20px rgba(0, 0, 0, .4);
-    border: 1px solid rgba(0, 0, 0, .3);
-	*/
-
-    /* font-family: 'Open Sans', Arial, sans-serif; */
-
+	background-color: #FFF;
     color: rgb(102, 102, 102);
     text-shadow: 0 2px 2px rgba(0, 0, 0, .1);
 
