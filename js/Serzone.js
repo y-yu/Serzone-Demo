@@ -436,7 +436,7 @@ var Spike = {
 	$eventType : {
 		next : {
 			mouse   : ["click"],
-			keycode : [32, 39]
+			keycode : [13, 32, 39]
 		},
 		previous : {
 			mouse   : undefined,
