@@ -227,26 +227,26 @@ function Step (order, obj, name, parent) {
 	Tree.call(this, order, parent);
 
 	Object.defineProperties( this, {
-		obj   : { value : obj,   writable : true,  configurable : false },
-		name  : { value : name,  writable : false, configurable : false },
-		type  : { value : Serzone.action[name].type, writable : false, configurable : false },
-		flag  : { value : false, writable : true, configurable : false },
+		$obj   : { value : obj,   writable : true,  configurable : false },
+		$name  : { value : name,  writable : false, configurable : false },
+		$type  : { value : Serzone.action[name].type, writable : false, configurable : false },
+		$flag  : { value : false, writable : true, configurable : false },
 
 		init : {
 			value : function (other) {
-				this.flag = true;
+				this.$flag = true;
 
-				return Serzone.action[name].init(this.obj, this);
+				return Serzone.action[name].init(this.$obj, this);
 			},
 			writable : false,
 			configurable : false
 		},
 		fire : {
 			value : function (other) {
-				if (this.flag) {
-					return Serzone.action[name].fire(this.obj, this);
+				if (this.$flag) {
+					return Serzone.action[name].fire(this.$obj, this);
 				} else {
-					return this.init(this.obj, this);
+					return this.init(this.$obj, this);
 				}
 			},
 			writable : false,
@@ -267,12 +267,6 @@ function Slide (order, elem, parent) {
 	Object.defineProperties( this, {
 		$elem     : { value : elem,      writable : false, configurable : false },
 		$steps    : { value : undefined, writable : true,  configurable : false },
-
-		css : {
-			value : new CSS(elem),
-			writable : true,
-			configurable : false
-		},
 
 		body : {
 			value : document.createElement("div"),
@@ -450,7 +444,7 @@ var Spike = {
 		var self = this;
 
 		this.$stack = (function rec (c) {
-			if (c.type == "inherit") {
+			if (c.$type == "inherit") {
 				c.init();
 				
 				var r = [c];
