@@ -67,7 +67,7 @@ Serzone.action = {};
 
 	Serzone.action = {
 		section : {
-			type : "next",
+			type : "changeSlide",
 			init : function (slide) {
 				if (slide.order == 0) {
 					changeSlide.initialize();

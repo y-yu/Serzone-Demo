@@ -289,13 +289,16 @@ Slide.prototype.constructor = Slide;
 Object.defineProperties(Slide.prototype, {
 	steps : {
 		get : function () {
-			var self  = this,
-				count = 0,
-				keys  = Object.keys(Serzone.action).join(",");
+			var self     = this,
+				count    = 0,
+				keys     = Object.keys(Serzone.action).join(","),
+				slideKey = Object.keys(Serzone.action).filter(function (e) {
+						return Serzone.action[e].type == "changeSlide"
+					})[0];
 
 			function getSlideSteps (elem, parent, order) {
-				if (elem.tagName == "SECTION") {
-					var step = new Step(order, self.children[count], "section", parent);
+				if (elem.tagName.toLowerCase() == slideKey) {
+					var step = new Step(order, self.children[count], slideKey, parent);
 
 					self.body.removeChild(elem);
 
@@ -305,8 +308,8 @@ Object.defineProperties(Slide.prototype, {
 
 					step.children = containedDirectlyNodes(keys, elem).map(
 						function (e, i) {
-							var s = new Step(order, self.children[count], "section", step);
-							if (e.tagName == "SECTION") {
+							var s = new Step(order, self.children[count], slideKey, step);
+							if (e.tagName.toLowerCase() == slideKey) {
 								s.children = self.children[count++].steps;
 
 								return s;
