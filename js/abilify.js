@@ -61,20 +61,49 @@ Serzone.action = {};
 			this.canvas.transition({
 				x : "-=" + x,
 				y : "-=" + y
-			}, 1000, "in-out");
+			});
 		}
 	};
 
+	var always = (function () {
+		var n = Number(document.location.hash.replace("#", "")) || 0;
+
+		return function (i) {
+			if (i >= n && $.fn.off) {
+				$.fn.off = false;
+				$.fx.speeds._default = 1000;
+				console.log($.fn.off)
+			}
+		};
+	}());
+
+	$.fn.off = true;
+	$.fx.speeds._default = 0;
+
 	Serzone.action = {
+		always : (function () {
+			var i = 0;
+
+			return {
+				init : function () {
+					console.log("always init")
+					always(i++);
+				},
+				fire : function () {
+					console.log("always fire")
+					always(i++);
+				}
+			};
+		}()),
+
 		section : {
 			type : "changeSlide",
-			init : function (slide) {
+			init : function (slide, that) {
 				if (slide.order == 0) {
 					changeSlide.initialize();
 				}
 
 				var body = changeSlide.addTable(slide, 2).find("div:first");
-
 				body.find("summary").hide();
 
 				changeSlide.transformCanvas(body.position().left, body.position().top);
