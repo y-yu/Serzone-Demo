@@ -236,6 +236,7 @@ function Step (order, obj, name, parent) {
 			value : function (other) {
 				this.$flag = true;
 
+				Serzone.action.always.init(this.$obj, this)
 				return Serzone.action[name].init(this.$obj, this);
 			},
 			writable : false,
@@ -244,6 +245,7 @@ function Step (order, obj, name, parent) {
 		fire : {
 			value : function (other) {
 				if (this.$flag) {
+					Serzone.action.always.fire(this.$obj, this)
 					return Serzone.action[name].fire(this.$obj, this);
 				} else {
 					return this.init(this.$obj, this);
