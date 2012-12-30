@@ -26,9 +26,9 @@ function containedDirectlyNodes (selector, node) {
 
 	return children.filter( function (child) {
 		return children.every( function (c) {
-			return c.compareDocumentPosition(child) != DESCENDANT;
+				return c.compareDocumentPosition(child) != DESCENDANT;
+			});
 		});
-	});
 }
 
 /*
@@ -37,43 +37,6 @@ function containedDirectlyNodes (selector, node) {
 
 Serzone.canvas = document.createElement("div");
 Serzone.canvas.classList.add("canvas");
-
-/*
- * CSS Class
- */
-function CSS (elem) {
-	Object.defineProperties( this, {
-		elem : { value : elem, writable : true, configurable : false },
-		css  : { value : [],   writable : true, configurable : false }
-	});
-}
-
-CSS.prototype = {
-	get : function (num) {
-		num = num || -1;
-
-		return this.css[num];
-	},
-
-	set : function (obj) {
-		for (var i in obj) {
-			this.elem.style.setProperty(i, obj[i]);
-		}
-
-		this.css.push(this.elem.style);
-
-		return true;
-	},
-
-	undo : function (num) {
-		num = num || 1;
-
-		elem.style = css[num];
-		css.pop();
-
-		return false;
-	}
-};
 
 /*
  * Tree Class
@@ -106,7 +69,7 @@ Object.defineProperties(Tree.prototype, {
 
 	parent : {
 		get : function () {
-			return this.$parent
+			return ( this.$parent != undefined ? this.$parent : null );
 		},
 
 		set : function (parent) {
@@ -119,24 +82,24 @@ Object.defineProperties(Tree.prototype, {
 	depth : {
 		get : function () {
 			return (function getDepth(self, depth) {
-				if (self.parent == null) {
-					return depth;
-				} else {
-					return getDepth(self.parent, depth+1);
-				}
-			}(this, 0));
+					if (self.parent == null) {
+						return depth;
+					} else {
+						return getDepth(self.parent, depth+1);
+					}
+				}(this, 0));
 		}
 	},
 
 	children : { 
 		get : function () {
-			return this.$children;
+			return this.$children.sort(
+				function (a, b) { return (a.order - b.order); }
+			);
 		},
 
 		set : function (newChildren) {
-			this.$children = this.$children.concat(newChildren).sort(
-				function (a, b) { return a.order - b.order; }
-			);
+			this.$children = this.$children.concat(newChildren);
 		},
 
 		configurable : false
@@ -144,13 +107,13 @@ Object.defineProperties(Tree.prototype, {
 
 	siblings : {
 		get : function () {
-			return this.$siblings;
+			return this.$siblings.sort(
+				function (a, b) { return (a.order - b.order); }
+			);
 		},
 
 		set : function (newSiblings) {
-			this.$siblings = this.$siblings.concat(newSiblings).sort(
-				function (a, b) { return a.order - b.order; }
-			);
+			this.$siblings = this.$siblings.concat(newSiblings);
 		},
 
 		configurable : false
@@ -170,8 +133,8 @@ Object.defineProperties(Tree.prototype, {
 		get : function () {
 			var self = this;
 			var candidates = this.siblings.filter(
-				function (s) { return s.order >= self.order; }
-			);
+					function (s) { return s.order >= self.order; }
+				);
 
 			return (candidates.length != 0 ? candidates[0] : null);
 		},
@@ -213,7 +176,8 @@ Object.defineProperties(Tree.prototype, {
 			} else if (candidate.next == this) {
 				return candidate;
 			} else {
-				return candidate.descendants.pop();
+				var d = candidate.descendants.pop();
+				return (d != undefined ? d : null);
 			}
 		}
 	}
@@ -223,61 +187,130 @@ Object.defineProperties(Tree.prototype, {
  * Step Class
  */
 
+var id = 0;
 function Step (order, obj, name, parent) {
 	Tree.call(this, order, parent);
 
 	Object.defineProperties( this, {
+		$id    : { value : id++,   writable : true,  configurable : false },
 		$obj   : { value : obj,   writable : true,  configurable : false },
 		$name  : { value : name,  writable : false, configurable : false },
 		$type  : { value : Serzone.action[name].type, writable : false, configurable : false },
 		$flag  : { value : false, writable : true, configurable : false },
 
+		obj  : {
+			get : function () {
+				if (this.$obj instanceof HTMLElement) {
+					var inCanvas = $("#step-" + this.order)[0];
+
+					if (inCanvas != undefined) {
+						this.$obj = inCanvas;
+					}
+				}
+
+				return this.$obj;
+			}
+		},
+
 		init : {
 			value : function (other) {
 				this.$flag = true;
 
-				Serzone.action.always.init(this.$obj, this)
-				return Serzone.action[name].init(this.$obj, this);
+				if (Serzone.action.always != undefined) {
+					Serzone.action.always.init(this.obj, this);
+				}
+
+				return Serzone.action[name].init(this.obj, this);
 			},
 			writable : false,
 			configurable : false
 		},
+
 		fire : {
 			value : function (other) {
 				if (this.$flag) {
-					Serzone.action.always.fire(this.$obj, this)
-					return Serzone.action[name].fire(this.$obj, this);
+					if (Serzone.action.always != undefined) {
+						Serzone.action.always.fire(this.obj, this);
+					}
+
+					return Serzone.action[name].fire(this.obj, this);
 				} else {
-					return this.init(this.$obj, this);
+					return this.init(this.obj, this);
 				}
 			},
 			writable : false,
 			configurable : false
 		}
 	});
+
+
 }
 
 Step.prototype = Object.create(Tree.prototype);
 Step.prototype.constructor = Step;
 
+Object.defineProperties(Step.prototype, {
+	order : {
+		set : function (n) {
+			this.$order = n;
+
+			if (this.$obj instanceof HTMLElement) {
+				this.$obj.id = "step-" + n;
+			}
+		},
+
+		get : function () {
+			return this.$order;
+		}
+	}
+});
+
+
 /*
  * Slide Class
  */
+
 function Slide (order, elem, parent) {
 	Tree.call(this, order, parent);
+
+	var slideKey = Object.keys(Serzone.action).filter(function (e) {
+						return Serzone.action[e].type == "changeSlide"
+					})[0];
 
 	Object.defineProperties( this, {
 		$elem     : { value : elem,      writable : false, configurable : false },
 		$steps    : { value : undefined, writable : true,  configurable : false },
 
-		body : {
+		$body : {
 			value : document.createElement("div"),
 			writable : true,
 			configurable : false
+		},
+
+		$mine : {
+			value : new Step(undefined, this, slideKey, (parent == null ? null : parent.$mine)),
+			writable : true,
+			configurable : false
+		},
+
+		body : {
+			get : function () {
+				var inCanvas = $("#slide-" + this.order)[0];
+
+				if (inCanvas != undefined) {
+					this.$body = inCanvas;
+				}
+				
+				return this.$body;
+			},
+			set : function (e) {
+				this.$body = e;
+			}
 		}
 	} );
 
 	this.body.classList.add("slide");
+	this.body.id = "slide-" + order;
 
 	var self = this;
 	arrayify(elem.childNodes).forEach( function (child) {
@@ -300,7 +333,7 @@ Object.defineProperties(Slide.prototype, {
 
 			function getSlideSteps (elem, parent, order) {
 				if (elem.tagName.toLowerCase() == slideKey) {
-					var step = new Step(order, self.children[count], slideKey, parent);
+					var step = self.children[count].$mine;
 
 					self.body.removeChild(elem);
 
@@ -308,32 +341,48 @@ Object.defineProperties(Slide.prototype, {
 				} else {
 					var step = new Step(order, elem, elem.tagName.toLowerCase(), parent);
 
-					step.children = containedDirectlyNodes(keys, elem).map(
-						function (e, i) {
-							var s = new Step(order, self.children[count], slideKey, step);
-							if (e.tagName.toLowerCase() == slideKey) {
-								s.children = self.children[count++].steps;
+					var t = containedDirectlyNodes(keys, elem).reduce(
+							(function (x, e) {
+								var steps = x[0],
+									i     = x[1] + 1;
 
-								return s;
-							} else {
-								return getSlideSteps(e, step, i);
-							}
-						}
-					);
+								var s = new Step(i, self.children[count], slideKey, step);
 
+								if (e.tagName.toLowerCase() == slideKey) {
+									s.children = self.children[count++].steps;
+
+									return [ steps.concat(s), (s.descendants.length + i) ];
+								} else {
+									var r = getSlideSteps(e, step, i);
+
+									return [ steps.concat(r[0]), (r[1] + i) ];
+								}
+							}), [[], order]
+						);
+					step.children = t[0];
+					
 					step.children.forEach( function (s, i, steps) {
 						s.siblings = steps.slice(0, i);
 						s.siblings = steps.slice(i + 1);
 					});
 				}
 
-				return step;
+				return [step, step.descendants.length];
 			}
 
 			if (this.$steps == undefined) {
-				this.$steps = containedDirectlyNodes(keys, this.body).map(
-					function (e, i) { return getSlideSteps(e, null, i); }
-				);
+				var t = containedDirectlyNodes(keys, this.body).reduce(
+					(function (x, e) {
+						var steps = x[0],
+							i     = x[1];
+
+						var r = getSlideSteps(e, self.$mine, i);
+
+						return [ steps.concat(r[0]), (i + r[1]) ];
+					}), [[], 0]);
+
+				this.$steps = t[0];
+
 				this.$steps.forEach( function (s, i, steps) {
 					s.siblings = steps.slice(0, i);
 					s.siblings = steps.slice(i + 1);
@@ -343,6 +392,9 @@ Object.defineProperties(Slide.prototype, {
 			return this.$steps;
 		},
 
+		set : function (s) {
+			this.$steps = s;
+		}
 	}
 });
 
@@ -360,12 +412,16 @@ var Parser = {
 	},
 
 	slideParser : function () {
+		var slideKey = Object.keys(Serzone.action).filter(function (e) {
+				return Serzone.action[e].type == "changeSlide"
+			})[0];
+
 		function parseSlides (section, order, parent) {
 			parent = parent || null;
 
 			var current = new Slide(order, section, parent);
 			
-			var children = containedDirectlyNodes("section", section).map(
+			var children = containedDirectlyNodes(slideKey, section).map(
 				function (child, i) {
 					var o  = parseSlides(child, order + 1, current);
 					order += o.descendants.length + 1;
@@ -384,9 +440,12 @@ var Parser = {
 			return current;
 		}
 
-		this.slides = containedDirectlyNodes("section", byId("serzone")).map(
-			function (section, i, serzoneChildren) {
-				var order = (i == 0 ? 0 : $("section", serzoneChildren[i - 1]).length + 1);
+		this.slides = containedDirectlyNodes(slideKey, byId("serzone")).map(
+			function (section, n, roots) {
+				var order = 0;
+				for (var i = 0; i < n; i++) {
+					order += $(slideKey, roots[i]).length + 1;
+				}
 				
 				return parseSlides(section, order);
 			}
@@ -399,8 +458,13 @@ var Parser = {
 	},
 	
 	stepParser : function () {
+		var keys     = Object.keys(Serzone.action).join(","),
+			slideKey = Object.keys(Serzone.action).filter(function (e) {
+				return Serzone.action[e].type == "changeSlide"
+			})[0];
+
 		this.steps = this.slides.map( function (slide, i) { 
-			var step      = new Step(i, slide, "section", null);
+			var step = slide.$mine;
 
 			slide.steps.forEach( function (s) {
 				s.parent = step;
@@ -415,13 +479,45 @@ var Parser = {
 			step.siblings = steps.slice(0, i);
 			step.siblings = steps.slice(i + 1);
 		});
+
+		function setOrder (step, n) {
+			var sum = n;
+
+			step.order = n;
+
+			if (step.children.length > 0) {
+				step.children.forEach(
+					function (s, i, c) {
+						if (i == 0) {
+							sum += 1;
+						} else {
+							for (var j = 0; j < i; j++) {
+								sum += c[j].descendants.length + 1
+							}
+						}
+
+						setOrder(s, sum)
+					});
+			}
+		}
+
+		this.steps.forEach(
+			function (s, i, c) {
+				var sum = 0;
+
+				for (var j = 0; j < i; j++) {
+					sum += c[j].descendants.length + 1;
+				}
+
+				setOrder(s, sum)
+			});
 	},
 
 	parse : function () {
 		try {
-		  this.init();
-		  this.slideParser();
-		  this.stepParser();
+			this.init();
+			this.slideParser();
+			this.stepParser();
 		} catch (e) {
 			throw e;
 		}
@@ -466,7 +562,8 @@ var Spike = {
 						self.$stack = c.children.reduce(
 							(function (x, y) { return x.concat( rec(y) ); }), []
 						).concat(c).concat(self.$stack);
-					}
+					},
+					$o : c
 				} ];
 			}
 		}(this.$slide));
@@ -495,7 +592,7 @@ var Spike = {
 		var n = (document.location.hash ? Number(document.location.hash.replace("#", "")) : 1);
 		var self = this;
 
-		for (var i=0; i<n; i++) {
+		for (var i = 0; i < n; i++) {
 			setTimeout(function () {
 				self.next(i);
 			}, 1);
@@ -524,6 +621,15 @@ var Spike = {
 				document.location.hash = i;
 			}
 		});
+
+		document.body.addEventListener("keydown", function(e) {
+			if (self.$eventType.previous.keycode.indexOf(e.keyCode) > -1) {
+				self.back(i)
+				i--;
+				document.location.hash = i;
+			}
+		});
+
 	}
 };
 
@@ -536,8 +642,9 @@ Serzone.start = function () {
 	Parser.parse();
 	this.slides = Parser.slides;
 	this.steps  = Parser.steps;
+	this.spike  = Spike;
 
-	Spike.start(this.steps[0]);
+	this.spike.start(this.steps[0]);
 };
 
 }());

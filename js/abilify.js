@@ -61,7 +61,7 @@ Serzone.action = {};
 			this.canvas.transition({
 				x : "-=" + x,
 				y : "-=" + y
-			});
+			}, 1000);
 		}
 	};
 
@@ -70,15 +70,12 @@ Serzone.action = {};
 
 		return function (i) {
 			if (i >= n && $.fn.off) {
-				$.fn.off = false;
-				$.fx.speeds._default = 1000;
-				console.log($.fn.off)
+				$.fx.off = false;
 			}
 		};
 	}());
 
-	$.fn.off = true;
-	$.fx.speeds._default = 0;
+	$.fx.off = true;
 
 	Serzone.action = {
 		always : (function () {
@@ -174,9 +171,8 @@ Serzone.action = {};
 					function (e) {
 					return e.nodeType != 3;
 				}).forEach( function (e) {
-					console.log(e);
 					hljs.highlightBlock(e, '<span class="indent"></span>', false);
-				});
+				})
 				$(o).show(1000);
 
 				console.log("src fire");
