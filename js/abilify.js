@@ -151,10 +151,14 @@ Serzone.action = {};
 			back : {
 				init : function (slide) {
 					var body  = $(slide.body),
-						tr    = body.parent().parent(),
-						table = body.parents();
+						tr    = body.parent().parent();
 
 					body.parent().remove();
+					
+					if (tr.find("td").length == 0) {
+						tr.remove();
+					}
+
 					var pos = $(slide.previous.body).position();
 
 					changeSlide.transformCanvas(pos.left, pos.top);
@@ -162,7 +166,27 @@ Serzone.action = {};
 					console.log("section back init");
 				},
 
-				fire : function () {
+				fire : function (slide) {
+					if (slide.children.length > 0) {
+						console.log(this.currentTable);
+						this.currentTable = $(slide.body).find("table");
+						console.log(this.currentTable);
+
+						var pos = {top : 0, left : 0};
+
+						slide.children.forEach(function (e) {
+							$(e.body).show();
+							var p = $(e.body).position();
+
+							pos.left += p.left - 50;
+							pos.top   = p.top - 60;
+						});
+
+						changeSlide.transformCanvas(pos.left, pos.top);
+					}
+
+					$(slide.body).find("summary").hide(1000);
+
 					console.log("section back fire");
 				}
 			}

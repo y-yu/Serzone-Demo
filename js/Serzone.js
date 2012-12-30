@@ -600,7 +600,6 @@ var Spike = {
 						fire :function () {
 							c.back.fire();
 
-							console.log(c);
 							self.$stack = self.$stack.filter(
 								function (e) {
 									return c.descendants.every( function (x) {
