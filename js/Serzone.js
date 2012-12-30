@@ -189,6 +189,8 @@ Object.defineProperties(Tree.prototype, {
 
 var id = 0;
 function Step (order, obj, name, parent) {
+	var self = this;
+
 	Tree.call(this, order, parent);
 
 	Object.defineProperties( this, {
@@ -212,38 +214,56 @@ function Step (order, obj, name, parent) {
 			}
 		},
 
-		init : {
-			value : function (other) {
-				this.$flag = true;
+		next : {
+			value : {
+				init : function (other) {
+					self.$flag = true;
 
-				if (Serzone.action.always != undefined) {
-					Serzone.action.always.init(this.obj, this);
-				}
+					if (Serzone.action.always != undefined && Serzone.action.always.next != undefined) {
+						Serzone.action.always.next.init(self.obj, self);
+					}
 
-				return Serzone.action[name].init(this.obj, this);
+					return Serzone.action[name].next.init(self.obj, self);
+				},
+
+				fire : function (other) {
+					if (self.$flag) {
+						if (Serzone.action.always != undefined && Serzone.action.always.next != undefined) {
+							Serzone.action.always.next.fire(self.obj, self);
+						}
+
+						return Serzone.action[name].next.fire(self.obj, self);
+					} else {
+						return self.next.init(self.obj, self);
+					}
+				},
 			},
 			writable : false,
 			configurable : false
 		},
 
-		fire : {
-			value : function (other) {
-				if (this.$flag) {
-					if (Serzone.action.always != undefined) {
-						Serzone.action.always.fire(this.obj, this);
+		back : {
+			value : {
+				init : function (other) {
+					if (Serzone.action.always != undefined && Serzone.action.always.back != undefined) {
+						Serzone.action.always.back.init(self.obj, self);
 					}
 
-					return Serzone.action[name].fire(this.obj, this);
-				} else {
-					return this.init(this.obj, this);
+					return Serzone.action[name].back.init(self.obj, self);
+				},
+
+				fire : function (other) {
+					if (Serzone.action.always != undefined && Serzone.action.always.back != undefined) {
+						Serzone.action.always.back.fire(self.obj, self);
+					}
+
+					return Serzone.action[name].back.fire(self.obj, self);
 				}
 			},
 			writable : false,
 			configurable : false
 		}
 	});
-
-
 }
 
 Step.prototype = Object.create(Tree.prototype);
@@ -540,13 +560,14 @@ var Spike = {
 	},
 	$slide : undefined, // Step Object
 	$stack : [],
+	$end   : [],
 
 	refreshStack : function () {
 		var self = this;
 
 		this.$stack = (function rec (c) {
 			if (c.$type == "inherit") {
-				c.init();
+				c.next.init();
 				
 				var r = [c];
 				r = r.concat( c.children.reduce( (function (x, y) {
@@ -556,12 +577,19 @@ var Spike = {
 				return r;
 			} else {
 				return [ {
-					fire : function () {
-						c.fire();
+					next : {
+						fire : function () {
+							c.next.fire();
 
-						self.$stack = c.children.reduce(
-							(function (x, y) { return x.concat( rec(y) ); }), []
-						).concat(c).concat(self.$stack);
+							self.$stack = c.children.reduce(
+								(function (x, y) { return x.concat( rec(y) ); }), []
+							).concat(c).concat(self.$stack);
+						},
+					},
+					back : {
+						fire :function () {
+							c.back.fire();
+						}
 					},
 					$o : c
 				} ];
@@ -571,9 +599,11 @@ var Spike = {
 
 	next : function (i) {
 		var step = this.$stack.shift();
+		this.$end.push(step);
 
+		console.log(step);
 		if (step != undefined) {
-			step.fire();
+			step.next.fire();
 		}
 
 		if (this.$stack.length <= 0) {
@@ -583,6 +613,14 @@ var Spike = {
 				this.refreshStack();
 			}
 		}
+	},
+
+	back : function () {
+		var step = this.$end.pop();
+
+		step.back.fire()
+
+		this.$stack.push(step);
 	},
 
 	start : function (slide) {
