@@ -54,6 +54,14 @@ Serzone.action = {};
 			return body;
 		},
 
+		rootSlide : function rootSlide(slide) {
+			if (slide.parent != null) {
+				return rootSlide(slide.parent);
+			} else {
+				return slide;
+			}
+		},
+
 		transformCanvas : function (x, y) {
 			x -= translateMargin.x;
 			y -= translateMargin.y;
@@ -70,14 +78,13 @@ Serzone.action = {};
 
 		return function (i) {
 			if (i >= n && $.fn.off) {
-				$.fn.off = false;
+				$.fx.off = false;
 				$.fx.speeds._default = 1000;
-				console.log($.fn.off)
 			}
 		};
 	}());
 
-	$.fn.off = true;
+	$.fx.off = true;
 	$.fx.speeds._default = 0;
 
 	Serzone.action = {
@@ -85,101 +92,189 @@ Serzone.action = {};
 			var i = 0;
 
 			return {
-				init : function () {
-					console.log("always init")
-					always(i++);
+				next : {
+					init : function () {
+						console.log("always next init")
+						always(i++);
+					},
+					fire : function () {
+						console.log("always next fire")
+						always(i++);
+					}
 				},
-				fire : function () {
-					console.log("always fire")
-					always(i++);
+				back : {
+					init : function () {
+						console.log("always back fire");
+					},
+					fire : function () {
+						console.log("always back fire");
+					}
 				}
 			};
 		}()),
 
 		section : {
 			type : "changeSlide",
-			init : function (slide, that) {
-				if (slide.order == 0) {
-					changeSlide.initialize();
+
+			next : {
+				init : function (slide, that) {
+					if (slide.order == 0) {
+						changeSlide.initialize();
+					}
+
+					var body = changeSlide.addTable(slide, 2).find("div:first");
+					body.find("summary").hide();
+
+					changeSlide.transformCanvas(body.position().left, body.position().top);
+
+					console.log("section next init");
+				},
+
+				fire : function (slide, step) {
+					if (slide.children.length > 0) {
+						changeSlide.shiftTable();
+
+						var pos = $(slide.body).position();
+						slide.children.forEach( function (e) {
+							$(e.body).hide(1000);
+						});
+
+						changeSlide.transformCanvas(pos.left, pos.top);
+					}
+					
+					$(slide.body).find("summary").show(1000);
+
+					console.log("section next fire");
 				}
-
-				var body = changeSlide.addTable(slide, 2).find("div:first");
-				body.find("summary").hide();
-
-				changeSlide.transformCanvas(body.position().left, body.position().top);
-
-				console.log("section init");
 			},
-			fire : function (slide, step) {
-				if (slide.children.length > 0) {
-					changeSlide.shiftTable();
 
-					var pos = $(slide.body).position();
-					slide.children.forEach( function (e) {
-						$(e.body).hide(1000);
-					});
+			back : {
+				init : function (slide) {
+					var body  = $(slide.body),
+						tr    = body.parent().parent();
+
+					body.parent().remove();
+					
+					if (tr.find("td").length == 0) {
+						tr.remove();
+					}
+
+					var pos = $(slide.previous.body).position();
 
 					changeSlide.transformCanvas(pos.left, pos.top);
-				}
-				
-				$(slide.body).find("summary").show(1000);
 
-				console.log("section fire");
+					console.log("section back init");
+				},
+
+				fire : function (slide) {
+					if (slide.children.length > 0) {
+						console.log(this.currentTable);
+						this.currentTable = $(slide.body).find("table");
+						console.log(this.currentTable);
+
+						var pos = {top : 0, left : 0};
+
+						slide.children.forEach(function (e) {
+							$(e.body).show();
+							var p = $(e.body).position();
+
+							pos.left += p.left - 50;
+							pos.top   = p.top - 60;
+						});
+
+						changeSlide.transformCanvas(pos.left, pos.top);
+					}
+
+					$(slide.body).find("summary").hide(1000);
+
+					console.log("section back fire");
+				}
 			}
 		},
 
 		appear : {
 			type : "inherit",
-			init : function (body) {
-				console.log("appear init");
-				$(body).hide();
+			next : {
+				init : function (body) {
+					console.log("appear next init");
+					$(body).hide();
+				},
+				fire : function (body) {
+					console.log("appear next fire");
+					$(body).show(1000);
+				}
 			},
-			fire : function (body) {
-				console.log("appear fire");
-				$(body).show(1000);
+			back : {
+				init : function () {
+					console.log("appear fire init");
+				},
+				fire : function () {
+					console.log("appear fire fire");
+				}
 			}
 		},
 
 		mark : {
 			type : "inherit",
-			init : function (body) {
-				// none
-				console.log("mark init");
+			next : {
+				init : function (body) {
+					// none
+					console.log("mark next init");
+				},
+				fire : function (body) {
+					var t = $(body).attr("t");
+
+					$(body).parent().find("m[t=" + t + "]").css({
+						background : "#DDD",
+						color      : "#007"
+					});
+					console.log("mark next fire");
+				}
 			},
-			fire : function (body) {
-				var t = $(body).attr("t");
+			back : {
+				init : function () {
+					// none
+					console.log("mark back init");
+				},
+				fire : function (body, step) {
+					var t = $(body).attr("t");
 
-				console.log("mark fire");
+					$(body).parent().find("m[t=" + t + "]").css({
+						background : "",
+						color      : ""
+					});
 
-				$(body).parent().find("m[t!=" + t + "]").css({
-					background : '',
-					color      : ''
-				});
-
-				$(body).parent().find("m[t=" + t + "]").css({
-					background : "#DDD",
-					color      : "#007"
-				});
+					console.log("mark back fire");
+				}
 			}
 		},
 
 		src: {
 			type : "inherit",
-			init : function (o) {
-				$(o).hide();
-				console.log("src init");
-			},
-			fire : function (o) {
-				arrayify( o.querySelectorAll("pre code") ).filter(
-					function (e) {
-					return e.nodeType != 3;
-				}).forEach( function (e) {
-					console.log(e);
-					hljs.highlightBlock(e, '<span class="indent"></span>', false);
-				});
-				$(o).show(1000);
+			next : {
+				init : function (o) {
+					$(o).hide();
+					console.log("src next init");
+				},
+				fire : function (o) {
+					arrayify( o.querySelectorAll("pre code") ).filter(
+						function (e) {
+						return e.nodeType != 3;
+					}).forEach( function (e) {
+						hljs.highlightBlock(e, '<span class="indent"></span>', false);
+					})
+					$(o).show(1000);
 
-				console.log("src fire");
+					console.log("src next fire");
+				}
+			},
+			back : {
+				init : function () {
+					console.log("src back init");
+				},
+				fire : function () {
+					console.log("src back fire");
+				}
 			}
 		},
 	};
