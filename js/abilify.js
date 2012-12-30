@@ -54,6 +54,14 @@ Serzone.action = {};
 			return body;
 		},
 
+		rootSlide : function rootSlide(slide) {
+			if (slide.parent != null) {
+				return rootSlide(slide.parent);
+			} else {
+				return slide;
+			}
+		},
+
 		transformCanvas : function (x, y) {
 			x -= translateMargin.x;
 			y -= translateMargin.y;
@@ -61,7 +69,7 @@ Serzone.action = {};
 			this.canvas.transition({
 				x : "-=" + x,
 				y : "-=" + y
-			}, 1000);
+			});
 		}
 	};
 
@@ -71,11 +79,13 @@ Serzone.action = {};
 		return function (i) {
 			if (i >= n && $.fn.off) {
 				$.fx.off = false;
+				$.fx.speeds._default = 1000;
 			}
 		};
 	}());
 
 	$.fx.off = true;
+	$.fx.speeds._default = 0;
 
 	Serzone.action = {
 		always : (function () {
@@ -139,9 +149,19 @@ Serzone.action = {};
 			},
 
 			back : {
-				init : function () {
+				init : function (slide) {
+					var body  = $(slide.body),
+						tr    = body.parent().parent(),
+						table = body.parents();
+
+					body.parent().remove();
+					var pos = $(slide.previous.body).position();
+
+					changeSlide.transformCanvas(pos.left, pos.top);
+
 					console.log("section back init");
 				},
+
 				fire : function () {
 					console.log("section back fire");
 				}
@@ -180,11 +200,6 @@ Serzone.action = {};
 				fire : function (body) {
 					var t = $(body).attr("t");
 
-					$(body).parent().find("m[t!=" + t + "]").css({
-						background : '',
-						color      : ''
-					});
-
 					$(body).parent().find("m[t=" + t + "]").css({
 						background : "#DDD",
 						color      : "#007"
@@ -194,9 +209,17 @@ Serzone.action = {};
 			},
 			back : {
 				init : function () {
+					// none
 					console.log("mark back init");
 				},
-				fire : function () {
+				fire : function (body, step) {
+					var t = $(body).attr("t");
+
+					$(body).parent().find("m[t=" + t + "]").css({
+						background : "",
+						color      : ""
+					});
+
 					console.log("mark back fire");
 				}
 			}

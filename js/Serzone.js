@@ -198,7 +198,8 @@ function Step (order, obj, name, parent) {
 		$obj   : { value : obj,   writable : true,  configurable : false },
 		$name  : { value : name,  writable : false, configurable : false },
 		$type  : { value : Serzone.action[name].type, writable : false, configurable : false },
-		$flag  : { value : false, writable : true, configurable : false },
+		$flag1 : { value : false, writable : true, configurable : false },
+		$flag2 : { value : false, writable : true, configurable : false },
 
 		obj  : {
 			get : function () {
@@ -217,7 +218,7 @@ function Step (order, obj, name, parent) {
 		next : {
 			value : {
 				init : function (other) {
-					self.$flag = true;
+					self.$flag1 = true;
 
 					if (Serzone.action.always != undefined && Serzone.action.always.next != undefined) {
 						Serzone.action.always.next.init(self.obj, self);
@@ -227,11 +228,12 @@ function Step (order, obj, name, parent) {
 				},
 
 				fire : function (other) {
-					if (self.$flag) {
+					if (self.$flag1) {
 						if (Serzone.action.always != undefined && Serzone.action.always.next != undefined) {
 							Serzone.action.always.next.fire(self.obj, self);
 						}
 
+						self.$flag2 = true;
 						return Serzone.action[name].next.fire(self.obj, self);
 					} else {
 						return self.next.init(self.obj, self);
@@ -249,15 +251,23 @@ function Step (order, obj, name, parent) {
 						Serzone.action.always.back.init(self.obj, self);
 					}
 
+					self.$flag1 = false;
+
 					return Serzone.action[name].back.init(self.obj, self);
 				},
 
 				fire : function (other) {
-					if (Serzone.action.always != undefined && Serzone.action.always.back != undefined) {
-						Serzone.action.always.back.fire(self.obj, self);
-					}
+					if (self.$flag2) {
+						if (Serzone.action.always != undefined && Serzone.action.always.back != undefined) {
+							Serzone.action.always.back.fire(self.obj, self);
+						}
 
-					return Serzone.action[name].back.fire(self.obj, self);
+						self.$flag2 = false;
+
+						return Serzone.action[name].back.fire(self.obj, self);
+					} else {
+						return this.init(self.obj, self);
+					}
 				}
 			},
 			writable : false,
@@ -589,6 +599,14 @@ var Spike = {
 					back : {
 						fire :function () {
 							c.back.fire();
+
+							console.log(c);
+							self.$stack = self.$stack.filter(
+								function (e) {
+									return c.descendants.every( function (x) {
+										return e != x;
+									}) && e != c;
+								});
 						}
 					},
 					$o : c
@@ -599,9 +617,8 @@ var Spike = {
 
 	next : function (i) {
 		var step = this.$stack.shift();
-		this.$end.push(step);
+		this.$end.unshift(step);
 
-		console.log(step);
 		if (step != undefined) {
 			step.next.fire();
 		}
@@ -616,11 +633,11 @@ var Spike = {
 	},
 
 	back : function () {
-		var step = this.$end.pop();
+		var step = this.$end.shift();
 
 		step.back.fire()
 
-		this.$stack.push(step);
+		this.$stack.unshift(step);
 	},
 
 	start : function (slide) {
