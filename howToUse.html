@@ -1,0 +1,297 @@
+<html lang="jp">
+<head>
+    <meta charset="utf-8" />
+    <title>Serzone.js</title>
+    
+	<link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/default.min.css">
+	<script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script> 
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="http://ricostacruz.com/jquery.transit/jquery.transit.min.js"></script>
+
+	<link rel="stylesheet" href="css/abilify.css"/>
+	<script src="js/abilify.js"></script>
+	<script src="js/Serzone.js"></script>
+</head>
+
+<body>
+
+<div id="serzone">
+
+<section>
+	<h1>How to Use</h1>
+
+	<br/>
+	<br/>
+	<br/>
+	<summary>
+		<p>
+			<span style="font-size: 80px">How</span>
+		<span class="indent"></span>to<span class="indent"></span>
+			<span style="font-size: 90px">Use</span>
+		</p>
+		<p>this</p>
+		<p style="font-size: 90px">Presentation Framework</p>
+	</summary>
+</section>
+
+<section>
+	<h1>Start to Use this Framework</h1>
+
+	<section>
+		<h1>Download form GitHub</h1>
+
+		<src>
+			<pre><code>git clone git://github.com/yoshimuraYuu/Serzone.git</code></pre>
+		</src>
+
+		<summary>
+			<p>When you finish cloning, Move Directory</p>
+		</summary>
+	</section>
+
+	<section>
+		<h1>Make a Presentation File</h1>
+
+		<p>the File have to follow this</p>
+		<section>
+			<h1>Header</h1>
+
+			<p>Load Files</p>
+			<src><pre><code>&lt;head&gt;
+	&lt;link rel="stylesheet" href="css/abilify.css"/&gt;
+	&lt;script src="js/abilify.js"&gt;&lt;/script&gt;
+	&lt;script src="js/Serzone.js"&gt;&lt;/script&gt;
+&lt;/head&gt;</code></pre>
+			</src>
+
+			<br/>
+			<br/>
+			<br/>
+			<summary>
+				<dl>
+					<dt>abilify.*</dt>
+					<dd>UI Files</dd>
+					<dt>Serzone.js</dt>
+					<dd>Core File</dt>
+				<dl>
+			</summary>
+		</section>
+
+		<section>
+			<h1>Body</h1>
+
+			<p>Make Presentation Parts</p>
+			<src>
+<pre><code>&lt;body&gt;
+	&lt;div id="serzone"&gt;
+
+	&lt;!-- Write Presentation here --&gt;
+	
+	&lt;/div&gt;
+</pre></code>
+			</src>
+
+			<br/>
+			<br/>
+			<summary>
+				<p>DIV Tag with <span class="m">id="serzone"</span> is Required</p>
+			</summary>
+		</section>
+		
+		<section>
+			<h1>Footer</h1>
+
+			<p>Start Serzone.js</p>
+			<src>
+<pre><code>		&lt;script&gt;
+			Serzone.start();
+		&lt;/script&gt;
+	&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+			</src>
+
+			<summary>
+				<p>Start Serzone!</p>
+			</summary>
+		</section>
+	</section>
+
+	<summary>
+		<p>Finished Preparing to Use This Framework</p>
+	</summary>
+</section>
+
+<section>
+	<h1>How to Make Slide</h1>
+
+	<p>About Slide</p>
+	<section>
+		<h1>One Slide</h1>
+
+		<src>
+			<pre><code>&lt;section&gt;
+	&lt;h1&gt;Head&lt;/h1&gt;
+	&lt;p&gt;Text&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+		</src>
+
+		<br/>
+		<p>for Example</p>
+		<section>
+			<h1>Head</h1>
+
+			<summary><p>Expand Child Section</p></summary>
+		</section>
+	</section>
+
+
+	<section>
+		<h1>Nested Slide</h1>
+
+		<src>
+			<pre><code>&lt;section&gt;
+	&lt;h1&gt;Head 1&lt;/h1&gt;
+
+	&lt;p&gt;Text 1&lt;/p&gt;
+	&lt;section&gt;
+		&lt;p&gt;Text 2-1&lt;/p&gt;
+		&lt;h1&gt;Head 2-1&lt;/h1&gt;
+	&lt;/section&gt;
+
+	&lt;section&gt;
+		&lt;p&gt;Text 2-2&lt;/p&gt;
+		&lt;h1&gt;Head 2-2&lt;/h1&gt;
+	&lt;/section&gt;
+&lt;/section&gt;</code></pre>
+		</src>
+		
+		<p>for Example</p>
+		<section>
+			<h1>Head 1</h1>
+
+			<appear><p>Text 1</p></appear>
+			<summary><p>View Around</p></summary>
+
+			<section>
+				<h1>Head 2-1</h1>
+				<summary><p>Text 2-1</p></summary>
+			</section>
+
+			<section>
+				<h1>Head 2-2</h1>
+				<summary><p>Text 2-2</p></summary>
+			</section>
+		</section>
+	</section>
+
+	<summary>
+		<p style="font-size: 80px">Same Works</p>
+		<p>in</p>
+		<p style="font-size: 80px"><span class="m">Any Point</span></p>
+		<p>of</p>
+		<p style="font-size: 100px"><b>Tree Structure</b></p>
+	</summary>
+</section>
+
+<section>
+	<h1>How to Use Animation</h1>
+
+	<section>
+		<h1>section</h1>
+
+		<p>Make Silide</p>
+	</section>
+
+	<section>
+		<h1>appear</h1>
+		
+		<p>Appear Text</p>
+		<src><pre><code>&lt;appear&gt;
+	&lt;p&gt;Hoge&lt;/p&gt;
+&lt;/appear&gt;</code></pre>
+		</src>
+
+		<p>for Example</p>
+		<appear>
+			<p>Hoge</p>
+		</appear>
+	</section>
+
+	<section>
+		<h1>src</h1>
+
+		<p>Paste Source Code</p>
+		<p>(Require <a href="http://softwaremaniacs.org/soft/highlight/en/">highlightjs</a>)</p>
+		<src><pre><code>&lt;src&gt;
+	&lt;pre&gt;&lt;code&gt;use 5.14.0;
+
+open my $fh, "&lt;", $ARGV[0];
+my @lines = &lt;$fh&gt;;
+close $fh;&lt;/code&gt;&lt;/pre&gt;
+&lt;/src&gt;</code></pre>
+		</src>
+
+		<p>for Example</p>
+		<src><pre><code>use 5.14.0;
+
+open my $fh, "&lt;", $ARGV[0];
+my @lines = <$fh>;
+close $fh;</code></pre>
+		</src>
+	</section>
+
+	<section>
+		<h1>mark</h1>
+
+		<p><span class="m">Mark</span> Text</p>
+		<src><pre><code>&lt;ul&gt;
+	&lt;appear&gt;&lt;li&gt;&lt;m t="hoge1"&gt;hoge1&lt;/m&gt;&lt;/li&gt;&lt;/appear&gt;
+	&lt;appear&gt;&lt;li&gt;&lt;m t="hoge2"&gt;hoge2&lt;/m&gt;&lt;/li&gt;&lt;/appear&gt;
+&lt;/ul&gt;
+&lt;mark t="hoge1"&gt;&lt;/mark&gt;
+&lt;mark t="hoge2"&gt;&lt;/mark&gt;</code></pre>
+		</src>
+
+		<p>for Example</p>
+		<ul>
+			<appear><li><m t="hoge1">hoge1</m></li></appear>
+			<appear><li><m t="hoge2">hoge2</m></li></appear>
+		</ul>
+
+		<mark t="hoge1"></mark>
+		<mark t="hoge2"></mark>
+	</section>
+
+	<section>
+		<h1>summary</h1>
+
+		<p>Section's Summary</p>
+		<p>(One Section, One Summary)</p>
+
+		<src><pre><code>&lt;summary&gt;
+	&lt;p&gt;Hoge&lt;/p&gt;
+&lt;/summary&gt;</code></pre>
+		</src>
+
+		<p>for Example</p>
+		<summary>
+			<p>Hoge</p>
+		</summary>
+	</section>
+
+	<summary>
+		<p style="font-size: 100px;">You Can <span class="m">Any Works</span></p>
+		<p>If you</p>
+		<p style="font-size: 80px;">Implement</p>
+	</summary>
+</section>
+</div>
+
+<script>
+	Serzone.start();
+</script>
+
+</body>
+</html>
+
