@@ -8,11 +8,11 @@ HTML + JavaScript + CSSによる、[Prezi](http://prezi.com/)ライクな
 * `<section>`タグによる階層構造によって、表示を自動化
 * __ステップ__を定義することで、さまざまな動きを実装可能に
 * [impress.js](https://github.com/bartaz/impress.js)よりも構造的なソースコード
+* 戻る機能
+* ランダムアクセス
 
 # 予定
 
-* 戻る機能
-* ランダムアクセス
 * 図形描画
 * （[JSX](http://jsx.github.com/)への移植）
 
