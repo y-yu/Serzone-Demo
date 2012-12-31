@@ -2,7 +2,9 @@ var Serzone = {};
 Serzone.action = {};
 
 (function (Serzone) {
-	// Utility
+	/*
+	 * Utility
+	 */
 	function arrayify (e) {
 		return Array.prototype.slice.call(e);
 	}
@@ -87,6 +89,9 @@ Serzone.action = {};
 	$.fx.off = true;
 	$.fx.speeds._default = 0;
 
+	/*
+	 * Main
+	 */
 	Serzone.action = {
 		always : (function () {
 			var i = 0;
@@ -159,7 +164,11 @@ Serzone.action = {};
 						tr.remove();
 					}
 
-					var pos = $(slide.previous.body).position();
+					if (slide.depth < slide.previous.depth) {
+						var pos = $( changeSlide.rootSlide(slide.previous).body ).position();
+					} else {
+						var pos = $(slide.previous.body).position();
+					}
 
 					changeSlide.transformCanvas(pos.left, pos.top);
 
@@ -167,25 +176,20 @@ Serzone.action = {};
 				},
 
 				fire : function (slide) {
-					if (slide.children.length > 0) {
-						console.log(this.currentTable);
-						this.currentTable = $(slide.body).find("table");
-						console.log(this.currentTable);
+					$(slide.body).find("summary").hide(0);
 
-						var pos = {top : 0, left : 0};
+					if (slide.children.length > 0) {
+						this.currentTable = $(slide.body).find("table");
 
 						slide.children.forEach(function (e) {
-							$(e.body).show();
-							var p = $(e.body).position();
-
-							pos.left += p.left - 50;
-							pos.top   = p.top - 60;
+							$(e.body).show(0);
 						});
+
+						var last = slide.children.length - 1,
+							pos  = $( slide.children[last].body ).position();
 
 						changeSlide.transformCanvas(pos.left, pos.top);
 					}
-
-					$(slide.body).find("summary").hide(1000);
 
 					console.log("section back fire");
 				}
@@ -206,9 +210,11 @@ Serzone.action = {};
 			},
 			back : {
 				init : function () {
+					// none
 					console.log("appear fire init");
 				},
-				fire : function () {
+				fire : function (body) {
+					$(body).hide(1000);
 					console.log("appear fire fire");
 				}
 			}
@@ -254,17 +260,17 @@ Serzone.action = {};
 			next : {
 				init : function (o) {
 					$(o).hide();
-					console.log("src next init");
-				},
-				fire : function (o) {
 					arrayify( o.querySelectorAll("pre code") ).filter(
 						function (e) {
 						return e.nodeType != 3;
 					}).forEach( function (e) {
 						hljs.highlightBlock(e, '<span class="indent"></span>', false);
 					})
+	
+					console.log("src next init");
+				},
+				fire : function (o) {
 					$(o).show(1000);
-
 					console.log("src next fire");
 				}
 			},
@@ -272,7 +278,8 @@ Serzone.action = {};
 				init : function () {
 					console.log("src back init");
 				},
-				fire : function () {
+				fire : function (o) {
+					$(o).hide(1000);
 					console.log("src back fire");
 				}
 			}
