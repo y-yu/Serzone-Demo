@@ -1,0 +1,68 @@
+html, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+
+body {
+	overflow-x: hidden;
+	overflow-y: hidden;
+
+	line-height: 1;
+	margin-left: 20px;
+    font-family: 'PT Sans', sans-serif;
+    
+    min-height: 740px;
+
+    background: #FFF;
+    background: -webkit-radial-gradient(rgb(Y, 240, 240), rgb(190, 190, 190));
+	background:         radial-gradient(rgb(240, 240, 240), rgb(190, 190, 190));
+
+    -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+    display: block;
+
+    width: 1000px;
+    padding: 40px 60px;
+
+    border-radius: 10px;
+
+	background-color: #EEE;
+    color: rgb(102, 102, 102);
+    text-shadow: 0 2px 2px rgba(0, 0, 0, .1);
+
+    font-size: 40px;
+    line-height: 36px;
+
+    letter-spacing: -1px;
+	margin-bottom: 10px;
+}
+
+.slide h1 {
+    padding-bottom: 20px;
+	line-height: 50px;
+}
+
+.slide > h1:first-letter{
+	float: left;
+    font-size: 2em;
+}
+
