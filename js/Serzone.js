@@ -142,7 +142,7 @@ Object.defineProperties(Tree.prototype, {
 		configurable : false
 	},
 
-	next : {
+	nextNode : {
 		get : function () {
 			if (this.children.length != 0) {
 				return this.children[0];
@@ -164,7 +164,7 @@ Object.defineProperties(Tree.prototype, {
 		configurable : false
 	},
 
-	previous : {
+	previousNode : {
 		get : function () {
 			var self = this;
 			var candidate = this.siblings.filter( function (e) {
@@ -173,7 +173,7 @@ Object.defineProperties(Tree.prototype, {
 
 			if (candidate == undefined) {
 				return this.parent;
-			} else if (candidate.next == this) {
+			} else if (candidate.nextNode == this) {
 				return candidate;
 			} else {
 				var d = candidate.descendants.pop();
@@ -188,10 +188,10 @@ Object.defineProperties(Tree.prototype, {
  */
 
 var id = 0;
-function Step (order, obj, name, parent) {
+function Step (obj, name, parent) {
 	var self = this;
 
-	Tree.call(this, order, parent);
+	Tree.call(this, null, parent);
 
 	Object.defineProperties( this, {
 		$id    : { value : id++,   writable : true,  configurable : false },
@@ -318,7 +318,7 @@ function Slide (order, elem, parent) {
 		},
 
 		$mine : {
-			value : new Step(undefined, this, slideKey, (parent == null ? null : parent.$mine)),
+			value : new Step(this, slideKey, (parent == null ? null : parent.$mine)),
 			writable : true,
 			configurable : false
 		},
@@ -361,7 +361,7 @@ Object.defineProperties(Slide.prototype, {
 						return Serzone.action[e].type == "changeSlide"
 					})[0];
 
-			function getSlideSteps (elem, parent, order) {
+			function getSlideSteps (elem, parent) {
 				if (elem.tagName.toLowerCase() == slideKey) {
 					var step = self.children[count].$mine;
 
@@ -369,27 +369,20 @@ Object.defineProperties(Slide.prototype, {
 
 					step.children = self.children[count++].steps;
 				} else {
-					var step = new Step(order, elem, elem.tagName.toLowerCase(), parent);
+					var step = new Step(elem, elem.tagName.toLowerCase(), parent);
 
-					var t = containedDirectlyNodes(keys, elem).reduce(
-							(function (x, e) {
-								var steps = x[0],
-									i     = x[1] + 1;
+					step.children = containedDirectlyNodes(keys, elem).map(
+						function (e) {
+							var s = new Step(self.children[count], slideKey, step);
 
-								var s = new Step(i, self.children[count], slideKey, step);
+							if (e.tagName.toLowerCase() == slideKey) {
+								s.children = self.children[count++].steps;
 
-								if (e.tagName.toLowerCase() == slideKey) {
-									s.children = self.children[count++].steps;
-
-									return [ steps.concat(s), (s.descendants.length + i) ];
-								} else {
-									var r = getSlideSteps(e, step, i);
-
-									return [ steps.concat(r[0]), (r[1] + i) ];
-								}
-							}), [[], order]
-						);
-					step.children = t[0];
+								return s;
+							} else {
+								return getSlideSteps(e, step);
+							}
+						});
 					
 					step.children.forEach( function (s, i, steps) {
 						s.siblings = steps.slice(0, i);
@@ -397,21 +390,14 @@ Object.defineProperties(Slide.prototype, {
 					});
 				}
 
-				return [step, step.descendants.length];
+				return step;
 			}
 
 			if (this.$steps == undefined) {
-				var t = containedDirectlyNodes(keys, this.body).reduce(
-					(function (x, e) {
-						var steps = x[0],
-							i     = x[1];
-
-						var r = getSlideSteps(e, self.$mine, i);
-
-						return [ steps.concat(r[0]), (i + r[1]) ];
-					}), [[], 0]);
-
-				this.$steps = t[0];
+				this.$steps = containedDirectlyNodes(keys, this.body).map(
+					function (e) {
+						return getSlideSteps(e, self.$mine);
+					});
 
 				this.$steps.forEach( function (s, i, steps) {
 					s.siblings = steps.slice(0, i);
@@ -521,9 +507,7 @@ var Parser = {
 						if (i == 0) {
 							sum += 1;
 						} else {
-							for (var j = 0; j < i; j++) {
-								sum += c[j].descendants.length + 1
-							}
+							sum += c[i-1].descendants.length + 1;
 						}
 
 						setOrder(s, sum)
@@ -702,3 +686,4 @@ Serzone.start = function () {
 };
 
 }());
+
