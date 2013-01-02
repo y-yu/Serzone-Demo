@@ -15,6 +15,7 @@ SerzoneTest.prototype["test check Serzone has start method and works"] = functio
 	}, "Error");
 };
 
+
 SerzoneTest.prototype["test check Serzone start method"] = function () {
 	/*:DOC += 
 		<div id="serzone">
