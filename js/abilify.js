@@ -79,7 +79,7 @@ Serzone.action = {};
 		var n = Number(document.location.hash.replace("#", "")) || 0;
 
 		return function (i) {
-			if (i >= n && $.fn.off) {
+			if (i >= n && $.fx.off) {
 				$.fx.off = false;
 				$.fx.speeds._default = 1000;
 			}
