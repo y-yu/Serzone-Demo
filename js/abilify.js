@@ -36,7 +36,7 @@ Serzone.action = {};
 		addTable : function (slide, n) {
 			var body = $("<td></td>").append(slide.body).hide(1000);
 
-			if (slide.previous == null || slide.depth <= slide.previous.depth) {
+			if (slide.previousNode == null || slide.depth <= slide.previousNode.depth) {
 				var tr = $("tbody:first > tr:last", this.currentTable);
 
 				if ($("td", tr).length < n) {
@@ -79,7 +79,7 @@ Serzone.action = {};
 		var n = Number(document.location.hash.replace("#", "")) || 0;
 
 		return function (i) {
-			if (i >= n && $.fn.off) {
+			if (i >= n && $.fx.off) {
 				$.fx.off = false;
 				$.fx.speeds._default = 1000;
 			}
@@ -164,10 +164,10 @@ Serzone.action = {};
 						tr.remove();
 					}
 
-					if (slide.depth < slide.previous.depth) {
-						var pos = $( changeSlide.rootSlide(slide.previous).body ).position();
+					if (slide.depth < slide.previousNode.depth) {
+						var pos = $( changeSlide.rootSlide(slide.previousNode).body ).position();
 					} else {
-						var pos = $(slide.previous.body).position();
+						var pos = $(slide.previousNode.body).position();
 					}
 
 					changeSlide.transformCanvas(pos.left, pos.top);

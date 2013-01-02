@@ -28,13 +28,6 @@ SlideTest.prototype["test Serzone has slides and it is Array"] = function () {
 	assertArray(Serzone.slides);
 };
 
-SlideTest.prototype["test all elements of slides instanceof Slide and Tree Class"] = function () {
-	Serzone.slides.forEach( function (e) {
-		assertTrue(e instanceof Slide);
-		assertTrue(e instanceof Tree);
-	});
-};
-
 SlideTest.prototype["test slide element has children"] = function () {
 	assertEquals([], Serzone.slides[0].children);
 	assertArray(Serzone.slides[1].children);
@@ -105,16 +98,28 @@ SlideTest.prototype["test nextSibling property"] = function () {
 	assertNull(slide1_1.nextSibling);
 };
 
-SlideTest.prototype["test next property"] = function () {
+SlideTest.prototype["test nextNode property"] = function () {
 	var slide0 = Serzone.slides[0];
 	var slide1 = Serzone.slides[1];
 	var slide1_0 = slide1.children[0];
 	var slide1_1 = slide1.children[1];
 
-	assertEquals(slide1, slide0.next);
-	assertEquals(slide1_0, slide1.next);
-	assertEquals(slide1_1, slide1_0.next);
-	assertNull(slide1_1.next);
+	assertEquals(slide1, slide0.nextNode);
+	assertEquals(slide1_0, slide1.nextNode);
+	assertEquals(slide1_1, slide1_0.nextNode);
+	assertNull(slide1_1.nextNode);
+};
+
+SlideTest.prototype["test previousNode property"] = function () {
+	var slide0 = Serzone.slides[0];
+	var slide1 = Serzone.slides[1];
+	var slide1_0 = slide1.children[0];
+	var slide1_1 = slide1.children[1];
+
+	assertEquals(slide1_1.previousNode, slide1_0);
+	assertEquals(slide1_0.previousNode, slide1);
+	assertEquals(slide1.previousNode, slide0);
+	assertNull(slide0.previousNode);
 };
 
 SlideTest.prototype["test Slide has steps, which is instanceof Array"] = function () {
@@ -123,3 +128,27 @@ SlideTest.prototype["test Slide has steps, which is instanceof Array"] = functio
 	});
 };
 
+SlideTest.prototype["test Slide has id based on $order"] = function () {
+	var slide0 = Serzone.slides[0];
+	var slide1 = Serzone.slides[1];
+	var slide1_0 = slide1.children[0];
+	var slide1_1 = slide1.children[1];
+
+	var e;
+	function resetElement (s) {
+		e = document.createElement("div");
+		e.appendChild(s.body);
+	}
+
+	resetElement(slide0);
+	assertNotNull(e.querySelector("#slide-0"));
+
+	resetElement(slide1);
+	assertNotNull(e.querySelector("#slide-1"));
+
+	resetElement(slide1_0)
+	assertNotNull(e.querySelector("#slide-2"));
+
+	resetElement(slide1_1)
+	assertNotNull(e.querySelector("#slide-3"));
+};

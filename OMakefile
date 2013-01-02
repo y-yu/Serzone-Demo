@@ -1,7 +1,7 @@
 dirs[] =
 	js
-	lib
 	t/src
+	t/lib
 
 t/dat/jsTestDriver.conf-coverage.dat: $(DepsUpdate $(dirs))
 	js-test-driver --tests all --captureConsole --testOutput t/dat/
