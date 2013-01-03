@@ -545,11 +545,11 @@ var Spike = {
 	$eventType : {
 		next : {
 			mouse   : ["click"],
-			keycode : [13, 32, 39]
+			keycode : ["Enter", "Right", "Down", '\u0020']
 		},
 		previous : {
 			mouse   : undefined,
-			keycode : [37]
+			keycode : ["Left", "Up"]
 		}
 	},
 	$slide : undefined, // Step Object
@@ -653,7 +653,7 @@ var Spike = {
 		// );
 
 		document.body.addEventListener("keydown", function(e) {
-			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
+			if (self.$eventType.next.keycode.indexOf(e.keyIdentifier) > -1) {
 				self.next(i);
 				i++;
 				document.location.hash = i;
@@ -661,7 +661,7 @@ var Spike = {
 		});
 
 		document.body.addEventListener("keydown", function(e) {
-			if (self.$eventType.previous.keycode.indexOf(e.keyCode) > -1) {
+			if (self.$eventType.previous.keycode.indexOf(e.keyIdentifier) > -1) {
 				self.back(i)
 				i--;
 				document.location.hash = i;
