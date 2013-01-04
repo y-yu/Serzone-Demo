@@ -220,6 +220,30 @@ Serzone.action = {};
 			}
 		},
 
+		hide : {
+			type : "inherit",
+			next : {
+				init : function (body) {
+					//none
+					console.log("hide next init");
+				},
+				fire : function (body) {
+					console.log("hide next fire");
+					$(body).fadeOut(1000);
+				}
+			},
+			back : {
+				init : function () {
+					// none
+					console.log("hide fire init");
+				},
+				fire : function (body) {
+					$(body).fadeIn(1000);
+					console.log("hide fire fire");
+				}
+			}
+		},
+
 		mark : {
 			type : "inherit",
 			next : {
