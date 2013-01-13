@@ -26,6 +26,10 @@ Chromeの最新安定板のみでテスト。
 
 Chrome以外では正常に動かない。
 
+# ライセンス
+
+(c)2012 Hikaru Yoshimura, with MIT License
+
 # 問い合わせ
 
 Twitter : [yoshimura_yuu](https://twitter.com/yoshimura_yuu)
