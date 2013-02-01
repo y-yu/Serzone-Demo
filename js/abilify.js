@@ -45,7 +45,7 @@ Serzone.action = {};
 					this.currentTable.find("tbody:first").append("<tr></tr>").find("tr:last").append(body);
 				}
 			} else {
-				var table = $("<table><tbody><tr></tr></tbody>").find("tr").append(body).end();
+				var table = $("<table><tbody><tr></tr></tbody></table>").find("tr").append(body).end();
 				$(slide.parent.body).append(table);
 
 				this.currentTable = table;
@@ -160,6 +160,7 @@ Serzone.action = {};
 
 					body.parent().remove();
 					
+					console.log(tr.find("td").length);
 					if (tr.find("td").length == 0) {
 						tr.remove();
 					}
