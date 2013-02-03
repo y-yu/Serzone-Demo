@@ -95,6 +95,21 @@ p {
 	color      : #007;
 }
 
+p code {
+	font-family: Monaco,"Courier New","DejaVu Sans Mono","Bitstream Vera Sans Mono",monospace;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-moz-background-clip: padding;
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+	border: 1px solid #ccc;
+	background-color: #f4f4f4;
+	padding: 0px 3px;
+	display: inline-block;
+}
+
+
 summary {
 	color: rgb(0, 0, 0);
 	text-align: center;
@@ -171,7 +186,8 @@ a:hover {
 }
 
 pre {
-	font-size: 0.7em;
+	font-family: Monaco,"Courier New","DejaVu Sans Mono","Bitstream Vera Sans Mono",monospace;
+	font-size: 0.6em;
 	margin: 0px 0px;
 }
 

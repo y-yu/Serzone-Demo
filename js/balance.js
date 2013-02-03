@@ -56,6 +56,8 @@ Serzone.action = {};
 
 				depth = i.depth;
 
+				$(i.body).find("summary").hide();
+
 				this.setTransform(i, pos);
 				$(i.body).addClass("step");
 
@@ -114,7 +116,6 @@ Serzone.action = {};
 
 					$(Serzone.canvas).removeClass("step-overview");
 
-					$(slide.body).find("summary").hide(0);
 
 					if (slide.previousNode != null) {
 						$(slide.previousNode.body).removeClass("active");
@@ -136,22 +137,28 @@ Serzone.action = {};
 					if (slide.parent != null) {
 						var parent = slide.parent;
 
-						changeSilde.posBox.transition({
-							x : -parent.pos.x * 1500 + (120 / ++parent.depth),
-							y : -parent.pos.y * 1500 + (20  / ++parent.depth)
-						});
-						$(Serzone.canvas).transition({
-							scale : ++parent.depth
-						});
+						if (slide.children.length > 0) {
+							changeSilde.posBox.transition({
+								x : -parent.pos.x * 1500 + (120 / ++parent.depth),
+								y : -parent.pos.y * 1500 + (20  / ++parent.depth)
+							});
+							$(Serzone.canvas).transition({
+								scale : ++parent.depth
+							});
 
-						$(parent.body).addClass("active")
+							$(parent.body).addClass("active")
 
-						if (slide.nextSibling == null) {
-							$(parent.body).find("summary").show(1500);
+							if (slide.nextSibling == null) {
+								$(parent.body).find("summary").show(1500);
+							}
+						} else {
+							$(slide.body).find("summary").show(1500);
 						}
 					} else {
+						$(slide.body).find("summary").show(1500);
+
 						$(Serzone.canvas).transition({
-							scale : 1 / 5
+							scale : 1 / 3
 						});
 						$(Serzone.canvas).addClass("step-overview");
 					}

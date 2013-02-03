@@ -26,7 +26,7 @@ function containedDirectlyNodes (selector, node) {
 
 	return children.filter( function (child) {
 		return children.every( function (c) {
-				return c.compareDocumentPosition(child) != DESCENDANT;
+				return c.compareDocumentPosition(child) !== DESCENDANT;
 			});
 		});
 }
@@ -53,7 +53,7 @@ function Tree (order, parent) {
 Object.defineProperties(Tree.prototype, {
 	order : {
 		get : function () {
-			if (this.$order == undefined) {
+			if (this.$order === undefined) {
 				throw new Error("order property is not defined.");
 			} else {
 				return this.$order;
@@ -69,7 +69,7 @@ Object.defineProperties(Tree.prototype, {
 
 	parent : {
 		get : function () {
-			return ( this.$parent != undefined ? this.$parent : null );
+			return ( this.$parent !== undefined ? this.$parent : null );
 		},
 
 		set : function (parent) {
@@ -82,7 +82,7 @@ Object.defineProperties(Tree.prototype, {
 	depth : {
 		get : function () {
 			return (function getDepth(self, depth) {
-					if (self.parent == null) {
+					if (self.parent === null) {
 						return depth;
 					} else {
 						return getDepth(self.parent, depth+1);
@@ -136,7 +136,7 @@ Object.defineProperties(Tree.prototype, {
 					function (s) { return s.order >= self.order; }
 				);
 
-			return (candidates.length != 0 ? candidates[0] : null);
+			return (candidates.length !== 0 ? candidates[0] : null);
 		},
 
 		configurable : false
@@ -144,15 +144,15 @@ Object.defineProperties(Tree.prototype, {
 
 	nextNode : {
 		get : function () {
-			if (this.children.length != 0) {
+			if (this.children.length !== 0) {
 				return this.children[0];
 			}
 
 			return (function findNext (self) {
-				if ( self.nextSibling !=  null ) {
+				if ( self.nextSibling !==  null ) {
 					return self.nextSibling;
 				}
-				else if ( self.parent != null ) {
+				else if ( self.parent !== null ) {
 					return findNext(self.parent);
 				}
 				else {
@@ -171,13 +171,13 @@ Object.defineProperties(Tree.prototype, {
 				return e.order < self.order;
 			}).pop();
 
-			if (candidate == undefined) {
+			if (candidate === undefined) {
 				return this.parent;
-			} else if (candidate.nextNode == this) {
+			} else if (candidate.nextNode === this) {
 				return candidate;
 			} else {
 				var d = candidate.descendants.pop();
-				return (d != undefined ? d : null);
+				return (d !== undefined ? d : null);
 			}
 		}
 	}
@@ -206,7 +206,7 @@ function Step (obj, name, parent) {
 				if (this.$obj instanceof HTMLElement) {
 					var inCanvas = $("#step-" + this.order)[0];
 
-					if (inCanvas != undefined) {
+					if (inCanvas !== undefined) {
 						this.$obj = inCanvas;
 					}
 				}
@@ -220,7 +220,7 @@ function Step (obj, name, parent) {
 				init : function (other) {
 					self.$flag1 = true;
 
-					if (Serzone.action.always != undefined && Serzone.action.always.next != undefined) {
+					if (Serzone.action.always !== undefined && Serzone.action.always.next !== undefined) {
 						Serzone.action.always.next.init(self.obj, self);
 					}
 
@@ -229,7 +229,7 @@ function Step (obj, name, parent) {
 
 				fire : function (other) {
 					if (self.$flag1) {
-						if (Serzone.action.always != undefined && Serzone.action.always.next != undefined) {
+						if (Serzone.action.always !== undefined && Serzone.action.always.next !== undefined) {
 							Serzone.action.always.next.fire(self.obj, self);
 						}
 
@@ -247,7 +247,7 @@ function Step (obj, name, parent) {
 		back : {
 			value : {
 				init : function (other) {
-					if (Serzone.action.always != undefined && Serzone.action.always.back != undefined) {
+					if (Serzone.action.always !== undefined && Serzone.action.always.back !== undefined) {
 						Serzone.action.always.back.init(self.obj, self);
 					}
 
@@ -258,7 +258,7 @@ function Step (obj, name, parent) {
 
 				fire : function (other) {
 					if (self.$flag2) {
-						if (Serzone.action.always != undefined && Serzone.action.always.back != undefined) {
+						if (Serzone.action.always !== undefined && Serzone.action.always.back !== undefined) {
 							Serzone.action.always.back.fire(self.obj, self);
 						}
 
@@ -304,7 +304,7 @@ function Slide (order, elem, parent) {
 	Tree.call(this, order, parent);
 
 	var slideKey = Object.keys(Serzone.action).filter(function (e) {
-						return Serzone.action[e].type == "changeSlide"
+						return Serzone.action[e].type === "changeSlide"
 					})[0];
 
 	Object.defineProperties( this, {
@@ -318,7 +318,7 @@ function Slide (order, elem, parent) {
 		},
 
 		$mine : {
-			value : new Step(this, slideKey, (parent == null ? null : parent.$mine)),
+			value : new Step(this, slideKey, (parent === null ? null : parent.$mine)),
 			writable : true,
 			configurable : false
 		},
@@ -327,7 +327,7 @@ function Slide (order, elem, parent) {
 			get : function () {
 				var inCanvas = $("#slide-" + this.order)[0];
 
-				if (inCanvas != undefined) {
+				if (inCanvas !== undefined) {
 					this.$body = inCanvas;
 				}
 				
@@ -358,11 +358,11 @@ Object.defineProperties(Slide.prototype, {
 				count    = 0,
 				keys     = Object.keys(Serzone.action).join(","),
 				slideKey = Object.keys(Serzone.action).filter(function (e) {
-						return Serzone.action[e].type == "changeSlide"
+						return Serzone.action[e].type === "changeSlide"
 					})[0];
 
 			function getSlideSteps (elem, parent) {
-				if (elem.tagName.toLowerCase() == slideKey) {
+				if (elem.tagName.toLowerCase() === slideKey) {
 					var step = self.children[count].$mine;
 
 					self.body.removeChild(elem);
@@ -375,7 +375,7 @@ Object.defineProperties(Slide.prototype, {
 						function (e) {
 							var s = new Step(self.children[count], slideKey, step);
 
-							if (e.tagName.toLowerCase() == slideKey) {
+							if (e.tagName.toLowerCase() === slideKey) {
 								s.children = self.children[count++].steps;
 
 								return s;
@@ -393,7 +393,7 @@ Object.defineProperties(Slide.prototype, {
 				return step;
 			}
 
-			if (this.$steps == undefined) {
+			if (this.$steps === undefined) {
 				this.$steps = containedDirectlyNodes(keys, this.body).map(
 					function (e) {
 						return getSlideSteps(e, self.$mine);
@@ -422,14 +422,14 @@ var Parser = {
 	steps  : [],
 
 	init : function () {
-		if ( byId("serzone") == null ) {
+		if ( byId("serzone") === null ) {
 			throw new Error("Don't have element which has id=serzone");
 		}
 	},
 
 	slideParser : function () {
 		var slideKey = Object.keys(Serzone.action).filter(function (e) {
-				return Serzone.action[e].type == "changeSlide"
+				return Serzone.action[e].type === "changeSlide"
 			})[0];
 
 		function parseSlides (section, order, parent) {
@@ -476,7 +476,7 @@ var Parser = {
 	stepParser : function () {
 		var keys     = Object.keys(Serzone.action).join(","),
 			slideKey = Object.keys(Serzone.action).filter(function (e) {
-				return Serzone.action[e].type == "changeSlide"
+				return Serzone.action[e].type === "changeSlide"
 			})[0];
 
 		this.steps = this.slides.map( function (slide, i) { 
@@ -504,7 +504,7 @@ var Parser = {
 			if (step.children.length > 0) {
 				step.children.forEach(
 					function (s, i, c) {
-						if (i == 0) {
+						if (i === 0) {
 							sum += 1;
 						} else {
 							sum += c[i-1].descendants.length + 1;
@@ -560,7 +560,7 @@ var Spike = {
 		var self = this;
 
 		this.$stack = (function rec (c) {
-			if (c.$type == "inherit") {
+			if (c.$type === "inherit") {
 				c.next.init();
 				
 				var r = [c];
@@ -587,8 +587,8 @@ var Spike = {
 							self.$stack = self.$stack.filter(
 								function (e) {
 									return c.descendants.every( function (x) {
-										return e != x;
-									}) && e != c;
+										return e.constructor === Step ? e !== x : e.$o !== x;
+									}) && (e.constructor === Step ? e !== c : e.$o !== c);
 								});
 						}
 					},
@@ -602,12 +602,12 @@ var Spike = {
 		var step = this.$stack.shift();
 		this.$end.unshift(step);
 
-		if (step != undefined) {
+		if (step !== undefined) {
 			step.next.fire();
 		}
 
 		if (this.$stack.length <= 0) {
-			if (this.$slide.nextSibling != null) {
+			if (this.$slide.nextSibling !== null) {
 				this.$slide = this.$slide.nextSibling;
 
 				this.refreshStack();
