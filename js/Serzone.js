@@ -587,8 +587,8 @@ var Spike = {
 							self.$stack = self.$stack.filter(
 								function (e) {
 									return c.descendants.every( function (x) {
-										return e.constructor === Step ? e !== x : e.$o !== x;
-									}) && (e.constructor === Step ? e !== c : e.$o !== c);
+										return e instanceof Step ? e !== x : e.$o !== x;
+									}) && (e instanceof Step ? e !== c : e.$o !== c);
 								});
 						}
 					},
