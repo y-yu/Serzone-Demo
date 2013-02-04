@@ -1,7 +1,7 @@
 var Serzone = {};
 Serzone.action = {};
 
-//(function (Serzone) {
+(function (Serzone) {
 	/*
 	 * Utility
 	 */
@@ -310,4 +310,4 @@ Serzone.action = {};
 			}
 		},
 	};
-//}(Serzone));
+}(Serzone));
