@@ -1,7 +1,7 @@
 var Serzone = {};
 Serzone.action = {};
 
-(function (Serzone) {
+//(function (Serzone) {
 	/*
 	 * Utility
 	 */
@@ -17,7 +17,7 @@ Serzone.action = {};
 	var changeSlide = {
 		$table : [ $("<table><tbody><tr></tr></tbody></table>") ],
 
-		get currentTable (b)  { return this.$table[0]; },
+		get currentTable ()  { return this.$table[0]; },
 		set currentTable (t) { this.$table.unshift(t); },
 
 		shiftTable : function () { 
@@ -167,6 +167,7 @@ Serzone.action = {};
 					if (slide.depth < slide.previousNode.depth) {
 						var pos = $( changeSlide.rootSlide(slide.previousNode).body ).position();
 					} else {
+						changeSlide.shiftTable();						
 						var pos = $(slide.previousNode.body).position();
 					}
 
@@ -216,6 +217,30 @@ Serzone.action = {};
 				fire : function (body) {
 					$(body).hide(1000);
 					console.log("appear fire fire");
+				}
+			}
+		},
+
+		hide : {
+			type : "inherit",
+			next : {
+				init : function (body) {
+					//none
+					console.log("hide next init");
+				},
+				fire : function (body) {
+					console.log("hide next fire");
+					$(body).fadeOut(1000);
+				}
+			},
+			back : {
+				init : function () {
+					// none
+					console.log("hide fire init");
+				},
+				fire : function (body) {
+					$(body).fadeIn(1000);
+					console.log("hide fire fire");
 				}
 			}
 		},
@@ -285,4 +310,4 @@ Serzone.action = {};
 			}
 		},
 	};
-}(Serzone));
+//}(Serzone));
