@@ -1,3 +1,9 @@
+# 超速報
+
+**このリポジトリはデモ専用になりました。**
+
+**本体は[こちら](https://github.com/yoshimuraYuu/Serzone)に移動しました。**
+
 # Serzone.js
 
 HTML + JavaScript + CSSによる、[Prezi](http://prezi.com/)ライクな
@@ -22,7 +28,7 @@ Chromeの最新安定板のみでテスト。
 
 # デモ
 
-[こちら](http://yoshimurayuu.github.com/Serzone/)
+[こちら](http://yoshimurayuu.github.com/Serzone-Demo/)
 
 Chrome以外では正常に動かない。
 
