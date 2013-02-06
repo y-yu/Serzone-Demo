@@ -22,7 +22,7 @@ Chromeの最新安定板のみでテスト。
 
 # デモ
 
-[こちら](http://yoshimurayuu.github.com/Serzone/)
+[こちら](http://yoshimurayuu.github.com/Serzone-Demo/)
 
 Chrome以外では正常に動かない。
 
