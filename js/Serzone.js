@@ -544,12 +544,12 @@ var Parser = {
 var Spike = {
 	$eventType : {
 		next : {
-			mouse   : ["click"],
-			keycode : ["Enter", "Right", "Down", '\u0020']
+			mouse   : undefined,
+			keycode : [39, 40, 32, 13]
 		},
 		previous : {
 			mouse   : undefined,
-			keycode : ["Left", "Up"]
+			keycode : [37, 38]
 		}
 	},
 	$slide : undefined, // Step Object
@@ -642,31 +642,21 @@ var Spike = {
 		// next
 		var self = this;
 
-		// this.$eventType.next.mouse.forEach(
-		// 	function (e) {
-		// 		document.body.addEventListener(e, function () {
-		// 			self.next(i);
-		// 			i++;
-		// 			document.location.hash = i;
-		// 		});
-		// 	}
-		// );
-
 		document.body.addEventListener("keydown", function(e) {
-			if (self.$eventType.next.keycode.indexOf(e.keyIdentifier) > -1) {
+			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
 				self.next(i);
 				i++;
 				document.location.hash = i;
 			}
-		});
+		}, false);
 
 		document.body.addEventListener("keydown", function(e) {
-			if (self.$eventType.previous.keycode.indexOf(e.keyIdentifier) > -1) {
+			if (self.$eventType.previous.keycode.indexOf(e.keyCode) > -1) {
 				self.back(i)
 				i--;
 				document.location.hash = i;
 			}
-		});
+		}, false);
 
 	}
 };
