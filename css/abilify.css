@@ -127,10 +127,6 @@ body {
     min-height: 740px;
 
     background: #FFF;
-    background: -webkit-radial-gradient(rgb(Y, 240, 240), rgb(190, 190, 190));
-	background:         radial-gradient(rgb(240, 240, 240), rgb(190, 190, 190));
-
-    -webkit-font-smoothing: antialiased;
 }
 
 b, strong { font-weight: bold }
