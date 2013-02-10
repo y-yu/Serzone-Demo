@@ -16,6 +16,7 @@ HTML + JavaScript + CSSによる、[Prezi](http://prezi.com/)ライクな
 * [impress.js](https://github.com/bartaz/impress.js)よりも構造的なソースコード
 * 戻る機能
 * ランダムアクセス
+* クロスプラウザ
 
 # 予定
 
@@ -24,13 +25,13 @@ HTML + JavaScript + CSSによる、[Prezi](http://prezi.com/)ライクな
 
 # 動作環境
 
-Chromeの最新安定板のみでテスト。
+Chrome、Firefox、Safariの最新安定板のみでテスト。
 
 # デモ
 
 [こちら](http://yoshimurayuu.github.com/Serzone-Demo/)
 
-Chrome以外では正常に動かない。
+Chrome、Firefox、Safariで正常動作。
 
 # ライセンス
 
@@ -38,4 +39,4 @@ Chrome以外では正常に動かない。
 
 # 問い合わせ
 
-Twitter : [yoshimura_yuu](https://twitter.com/yoshimura_yuu)
+Twitter : [_yyu_](https://twitter.com/_yyu_)
