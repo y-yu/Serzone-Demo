@@ -131,9 +131,8 @@ Object.defineProperties(Tree.prototype, {
 
 	nextSibling : {
 		get : function () {
-			var self = this;
 			var candidates = this.siblings.filter(
-					function (s) { return s.order >= self.order; }
+					function (s) { return s.order >= this.order; }, this
 				);
 
 			return (candidates.length !== 0 ? candidates[0] : null);
@@ -166,10 +165,9 @@ Object.defineProperties(Tree.prototype, {
 
 	previousNode : {
 		get : function () {
-			var self = this;
 			var candidate = this.siblings.filter( function (e) {
-				return e.order < self.order;
-			}).pop();
+				return e.order < this.order;
+			}, this).pop();
 
 			if (candidate === undefined) {
 				return this.parent;
@@ -342,10 +340,9 @@ function Slide (order, elem, parent) {
 	this.body.classList.add("slide");
 	this.body.id = "slide-" + order;
 
-	var self = this;
 	arrayify(elem.childNodes).forEach( function (child) {
-		self.body.appendChild(child.cloneNode(true));
-	}); 
+		this.body.appendChild(child.cloneNode(true));
+	}, this); 
 }
 
 Slide.prototype = Object.create(Tree.prototype);
@@ -396,8 +393,8 @@ Object.defineProperties(Slide.prototype, {
 			if (this.$steps === undefined) {
 				this.$steps = containedDirectlyNodes(keys, this.body).map(
 					function (e) {
-						return getSlideSteps(e, self.$mine);
-					});
+						return getSlideSteps(e, this.$mine);
+					}, this);
 
 				this.$steps.forEach( function (s, i, steps) {
 					s.siblings = steps.slice(0, i);
