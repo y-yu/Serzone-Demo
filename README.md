@@ -33,4 +33,4 @@ Chrome、Firefox、Safariで正常動作。
 
 # 問い合わせ
 
-Twitter : [yoshimura_yuu](https://twitter.com/yoshimura_yuu)
+Twitter : [_yyu_](https://twitter.com/_yyu_)
