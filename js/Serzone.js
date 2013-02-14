@@ -570,16 +570,18 @@ var Spike = {
 				return [ {
 					next : {
 						fire : function () {
-							c.next.fire();
+							var t = c.next.fire();
 
 							self.$stack = c.children.reduce(
 								(function (x, y) { return x.concat( rec(y) ); }), []
 							).concat(c).concat(self.$stack);
+
+							return t;
 						},
 					},
 					back : {
 						fire :function () {
-							c.back.fire();
+							var t = c.back.fire();
 
 							self.$stack = self.$stack.filter(
 								function (e) {
@@ -587,6 +589,8 @@ var Spike = {
 										return e instanceof Step ? e !== x : e.$o !== x;
 									}) && (e instanceof Step ? e !== c : e.$o !== c);
 								});
+
+							return t;
 						}
 					},
 					$o : c
@@ -600,7 +604,7 @@ var Spike = {
 		this.$end.unshift(step);
 
 		if (step !== undefined) {
-			step.next.fire();
+			var t = step.next.fire();
 		}
 
 		if (this.$stack.length <= 0) {
@@ -610,14 +614,18 @@ var Spike = {
 				this.refreshStack();
 			}
 		}
+
+		return t;
 	},
 
 	back : function () {
 		var step = this.$end.shift();
 
-		step.back.fire()
+		var t = step.back.fire()
 
 		this.$stack.unshift(step);
+
+		return t;
 	},
 
 	start : function (slide) {
@@ -639,19 +647,32 @@ var Spike = {
 		// next
 		var self = this;
 
-		document.body.addEventListener("keydown", function(e) {
+		document.addEventListener("keydown", function next (e) {
 			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
-				self.next(i);
+
+				var t = self.next(i) || 0;
 				i++;
 				document.location.hash = i;
+
+				document.removeEventListener("keydown", next, false);
+
+				setTimeout( function () {
+					document.addEventListener("keydown", next, false);
+				}, t );
 			}
 		}, false);
 
-		document.body.addEventListener("keydown", function(e) {
+		document.addEventListener("keydown", function back (e) {
 			if (self.$eventType.previous.keycode.indexOf(e.keyCode) > -1) {
-				self.back(i)
+				var t = self.back(i) || 0;
 				i--;
 				document.location.hash = i;
+
+				document.removeEventListener("keydown", back, false);
+
+				setTimeout( function () {
+					document.addEventListener("keydown", back, false);
+				}, t );
 			}
 		}, false);
 
