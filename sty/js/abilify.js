@@ -133,6 +133,8 @@ Serzone.action = {};
 					changeSlide.transformCanvas(body.position().left, body.position().top);
 
 					console.log("section next init");
+
+					return 1000;
 				},
 
 				fire : function (slide, step) {
@@ -150,6 +152,8 @@ Serzone.action = {};
 					$(slide.body).find("summary").show(1000);
 
 					console.log("section next fire");
+
+					return 1000;
 				}
 			},
 
@@ -174,6 +178,8 @@ Serzone.action = {};
 					changeSlide.transformCanvas(pos.left, pos.top);
 
 					console.log("section back init");
+
+					return 1000;
 				},
 
 				fire : function (slide) {
@@ -193,6 +199,8 @@ Serzone.action = {};
 					}
 
 					console.log("section back fire");
+
+					return 1000;
 				}
 			}
 		},
@@ -203,10 +211,14 @@ Serzone.action = {};
 				init : function (body) {
 					console.log("appear next init");
 					$(body).hide();
+
+					return 100;
 				},
 				fire : function (body) {
 					console.log("appear next fire");
 					$(body).show(1000);
+
+					return 100;
 				}
 			},
 			back : {
@@ -217,6 +229,8 @@ Serzone.action = {};
 				fire : function (body) {
 					$(body).hide(1000);
 					console.log("appear fire fire");
+
+					return 100;
 				}
 			}
 		},
@@ -231,6 +245,8 @@ Serzone.action = {};
 				fire : function (body) {
 					console.log("hide next fire");
 					$(body).fadeOut(1000);
+
+					return 100;
 				}
 			},
 			back : {
@@ -241,6 +257,8 @@ Serzone.action = {};
 				fire : function (body) {
 					$(body).fadeIn(1000);
 					console.log("hide fire fire");
+
+					return 100;
 				}
 			}
 		},
@@ -260,6 +278,8 @@ Serzone.action = {};
 						color      : "#007"
 					});
 					console.log("mark next fire");
+
+					return 100;
 				}
 			},
 			back : {
@@ -276,6 +296,8 @@ Serzone.action = {};
 					});
 
 					console.log("mark back fire");
+
+					return 100;
 				}
 			}
 		},
@@ -297,6 +319,8 @@ Serzone.action = {};
 				fire : function (o) {
 					$(o).show(1000);
 					console.log("src next fire");
+
+					return 300;
 				}
 			},
 			back : {
@@ -305,6 +329,8 @@ Serzone.action = {};
 				},
 				fire : function (o) {
 					$(o).hide(1000);
+
+					return 1100;
 					console.log("src back fire");
 				}
 			}
