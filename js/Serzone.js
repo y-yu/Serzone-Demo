@@ -1,6 +1,5 @@
-"use strict";
-
 (function () {
+"use strict";
 
 /*
  * Utility functions
@@ -615,17 +614,20 @@ var Spike = {
 			}
 		}
 
-		return t;
+		return (step !== undefined ? t : Infinity);
 	},
 
 	back : function () {
-		var step = this.$end.shift();
+		if (this.$end.length > 0) {
+			var step = this.$end.shift();
 
-		var t = step.back.fire()
+			var t = step.back.fire()
+			this.$stack.unshift(step);
 
-		this.$stack.unshift(step);
-
-		return t;
+			return t;
+		} else {
+			return Infinity;
+		}
 	},
 
 	start : function (slide) {
@@ -647,31 +649,66 @@ var Spike = {
 		// next
 		var self = this;
 
+		var nextTimes = 0;
 		document.addEventListener("keydown", function next (e) {
 			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
-
 				var t = self.next(i) || 0;
+
+				if (t === Infinity) { return; }
+
 				i++;
 				document.location.hash = i;
 
+				var countTimes = function countTimes () {
+					if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
+						nextTimes++;
+					}
+				};
+
 				document.removeEventListener("keydown", next, false);
+				document.addEventListener("keydown", countTimes, false);
 
 				setTimeout( function () {
-					document.addEventListener("keydown", next, false);
+					document.removeEventListener("keydown", countTimes, false);
+
+					if (nextTimes > 0) {
+						nextTimes--;
+						next(e);
+					} else {
+						document.addEventListener("keydown", next, false);
+					}
 				}, t );
 			}
 		}, false);
 
+		var backTimes = 0;
 		document.addEventListener("keydown", function back (e) {
 			if (self.$eventType.previous.keycode.indexOf(e.keyCode) > -1) {
 				var t = self.back(i) || 0;
+
+				if (t === Infinity) { return; }
+
 				i--;
 				document.location.hash = i;
 
+				var countTimes = function countTimes () {
+					if (self.$eventType.previous.keycode.indexOf(e.keyCode) > -1) {
+						backTimes++;
+					}
+				};
+
 				document.removeEventListener("keydown", back, false);
+				document.addEventListener("keydown", countTimes, false);
 
 				setTimeout( function () {
-					document.addEventListener("keydown", back, false);
+					document.removeEventListener("keydown", countTimes, false);
+
+					if (backTimes > 0) {
+						backTimes--;
+						back(e);
+					} else {
+						document.addEventListener("keydown", back, false);
+					}
 				}, t );
 			}
 		}, false);
