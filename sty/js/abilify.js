@@ -36,7 +36,7 @@ Serzone.action = {};
 		addTable : function (slide, n) {
 			var body = $("<td></td>").append(slide.body).hide(1000);
 
-			if (slide.previousNode == null || slide.depth <= slide.previousNode.depth) {
+			if (slide.previousNode === null || slide.depth <= slide.previousNode.depth) {
 				var tr = $("tbody:first > tr:last", this.currentTable);
 
 				if ($("td", tr).length < n) {
@@ -57,7 +57,7 @@ Serzone.action = {};
 		},
 
 		rootSlide : function rootSlide(slide) {
-			if (slide.parent != null) {
+			if (slide.parent !== null) {
 				return rootSlide(slide.parent);
 			} else {
 				return slide;
@@ -123,7 +123,7 @@ Serzone.action = {};
 
 			next : {
 				init : function (slide, that) {
-					if (slide.order == 0) {
+					if (slide.order === 0) {
 						changeSlide.initialize();
 					}
 
@@ -164,7 +164,7 @@ Serzone.action = {};
 
 					body.parent().remove();
 					
-					if (tr.find("td").length == 0) {
+					if (tr.find("td").length === 0) {
 						tr.remove();
 					}
 
@@ -309,7 +309,7 @@ Serzone.action = {};
 					$(o).hide();
 					arrayify( o.querySelectorAll("pre code") ).filter(
 						function (e) {
-						return e.nodeType != 3;
+						return e.nodeType !== 3;
 					}).forEach( function (e) {
 						hljs.highlightBlock(e, '<span class="indent"></span>', false);
 					})
@@ -320,7 +320,7 @@ Serzone.action = {};
 					$(o).show(1000);
 					console.log("src next fire");
 
-					return 300;
+					return 1000;
 				}
 			},
 			back : {
@@ -330,8 +330,8 @@ Serzone.action = {};
 				fire : function (o) {
 					$(o).hide(1000);
 
-					return 1100;
 					console.log("src back fire");
+					return 1000;
 				}
 			}
 		},
