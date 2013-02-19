@@ -543,7 +543,7 @@ var Spike = {
 			mouse   : undefined,
 			keycode : [39, 40, 32, 13]
 		},
-		previous : {
+		back : {
 			mouse   : undefined,
 			keycode : [37, 38]
 		}
@@ -646,73 +646,50 @@ var Spike = {
 	},
 
 	setEvent : function (i) {
-		// next
 		var self = this;
 
-		var nextTimes = 0;
-		document.addEventListener("keydown", function next (e) {
-			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
-				var t = self.next(i) || 0;
+		var times = {
+			next : 0,
+			back : 0
+		};
+		
+		function makeKeyEvent (type) {
+			var f = function (e) {
+				if (self.$eventType[type].keycode.indexOf(e.keyCode) > -1) {
+					var t = self[type](i) || 0;
+					if (t === Infinity) { return; }
 
-				if (t === Infinity) { return; }
+					type === "next" ? i++ : i--;
+					
+					document.location.hash = i;
 
-				i++;
-				document.location.hash = i;
+					var countTimes = function () {
+						if (self.$eventType[type].keycode.indexOf(e.keyCode) > -1) {
+							times[type]++;
+						}
+					};
 
-				var countTimes = function countTimes () {
-					if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
-						nextTimes++;
-					}
-				};
+					document.removeEventListener("keydown", f, false);
+					document.addEventListener("keydown", countTimes, false);
 
-				document.removeEventListener("keydown", next, false);
-				document.addEventListener("keydown", countTimes, false);
+					setTimeout( function () {
+						document.removeEventListener("keydown", countTimes, false);
 
-				setTimeout( function () {
-					document.removeEventListener("keydown", countTimes, false);
+						if (times[type] > 0) {
+							times[type]--;
+							f(e);
+						} else {
+							document.addEventListener("keydown", f, false);
+						}
+					}, t );
+				}
+			};
 
-					if (nextTimes > 0) {
-						nextTimes--;
-						next(e);
-					} else {
-						document.addEventListener("keydown", next, false);
-					}
-				}, t );
-			}
-		}, false);
+			return f;
+		}
 
-		var backTimes = 0;
-		document.addEventListener("keydown", function back (e) {
-			if (self.$eventType.previous.keycode.indexOf(e.keyCode) > -1) {
-				var t = self.back(i) || 0;
-
-				if (t === Infinity) { return; }
-
-				i--;
-				document.location.hash = i;
-
-				var countTimes = function countTimes () {
-					if (self.$eventType.previous.keycode.indexOf(e.keyCode) > -1) {
-						backTimes++;
-					}
-				};
-
-				document.removeEventListener("keydown", back, false);
-				document.addEventListener("keydown", countTimes, false);
-
-				setTimeout( function () {
-					document.removeEventListener("keydown", countTimes, false);
-
-					if (backTimes > 0) {
-						backTimes--;
-						back(e);
-					} else {
-						document.addEventListener("keydown", back, false);
-					}
-				}, t );
-			}
-		}, false);
-
+		document.addEventListener( "keydown", makeKeyEvent("next"), false);
+		document.addEventListener( "keydown", makeKeyEvent("back"), false);
 	}
 };
 
