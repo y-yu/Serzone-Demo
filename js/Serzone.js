@@ -648,48 +648,43 @@ var Spike = {
 	setEvent : function (i) {
 		var self = this;
 
-		var times = {
-			next : 0,
-			back : 0
-		};
+		var input = [];
 		
-		function makeKeyEvent (type) {
-			var f = function (e) {
-				if (self.$eventType[type].keycode.indexOf(e.keyCode) > -1) {
-					var t = self[type](i) || 0;
-					if (t === Infinity) { return; }
-
-					type === "next" ? i++ : i--;
-					
-					document.location.hash = i;
-
-					var countTimes = function () {
-						if (self.$eventType[type].keycode.indexOf(e.keyCode) > -1) {
-							times[type]++;
-						}
-					};
-
-					document.removeEventListener("keydown", f, false);
-					document.addEventListener("keydown", countTimes, false);
-
-					setTimeout( function () {
-						document.removeEventListener("keydown", countTimes, false);
-
-						if (times[type] > 0) {
-							times[type]--;
-							f(e);
-						} else {
-							document.addEventListener("keydown", f, false);
-						}
-					}, t );
-				}
-			};
-
-			return f;
+		var flag = true;
+		function countTimes (e) {
+			input.push(e);
 		}
 
-		document.addEventListener( "keydown", makeKeyEvent("next"), false);
-		document.addEventListener( "keydown", makeKeyEvent("back"), false);
+		function keyEvent (e) {
+			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1) {
+				var type = "next";
+			} else if (self.$eventType.back.keycode.indexOf(e.keyCode) > -1) {
+				var type = "back";
+			} else {
+				return;
+			}
+
+			var t = self[type](i) || 0;
+			if (t === Infinity) { return; }
+
+			type === "next" ? i++ : i--;
+			document.location.hash = i;
+
+			document.removeEventListener("keydown", keyEvent, false);
+			document.addEventListener("keydown", countTimes, false);
+
+			setTimeout( function () {
+				document.removeEventListener("keydown", countTimes, false);
+
+				if (input.length === 0) {
+					document.addEventListener("keydown", keyEvent, false);
+				} else {
+					keyEvent( input.shift() );
+				}
+			}, t );
+		}
+
+		document.addEventListener("keydown", keyEvent, false);
 	}
 };
 
