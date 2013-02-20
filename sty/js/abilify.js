@@ -22,7 +22,9 @@ Serzone.action = {};
 
 		shiftTable : function () { 
 			if (this.$table.length > 1) {
-				return this.$table.shift(); 
+				var t = this.$table.shift(); 
+				t.remove();
+				return t;
 			} else {
 				return this.$table[0];
 			}
@@ -99,20 +101,20 @@ Serzone.action = {};
 			return {
 				next : {
 					init : function () {
-						console.log("always next init")
+						//console.log("always next init")
 						always(i++);
 					},
 					fire : function () {
-						console.log("always next fire")
+						//console.log("always next fire")
 						always(i++);
 					}
 				},
 				back : {
 					init : function () {
-						console.log("always back fire");
+						//console.log("always back fire");
 					},
 					fire : function () {
-						console.log("always back fire");
+						//console.log("always back fire");
 					}
 				}
 			};
@@ -168,7 +170,9 @@ Serzone.action = {};
 						tr.remove();
 					}
 
-					if (slide.depth < slide.previousNode.depth) {
+					if (slide.depth === slide.previousNode.depth) {
+						var pos = $(slide.previousNode.body).position();
+					} else if (slide.depth < slide.previousNode.depth) {
 						var pos = $( changeSlide.rootSlide(slide.previousNode).body ).position();
 					} else {
 						changeSlide.shiftTable();						
