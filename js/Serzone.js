@@ -214,26 +214,26 @@ function Step (obj, name, parent) {
 
 		next : {
 			value : {
-				init : function (other) {
+				init : function (event) {
 					self.$flag1 = true;
 
 					if (Serzone.action.always !== undefined && Serzone.action.always.next !== undefined) {
-						Serzone.action.always.next.init(self.obj, self);
+						Serzone.action.always.next.init(self.obj, self, event);
 					}
 
-					return Serzone.action[name].next.init(self.obj, self);
+					return Serzone.action[name].next.init(self.obj, self, event);
 				},
 
-				fire : function (other) {
+				fire : function (event) {
 					if (self.$flag1) {
 						if (Serzone.action.always !== undefined && Serzone.action.always.next !== undefined) {
-							Serzone.action.always.next.fire(self.obj, self);
+							Serzone.action.always.next.fire(self.obj, self, event);
 						}
 
 						self.$flag2 = true;
-						return Serzone.action[name].next.fire(self.obj, self);
+						return Serzone.action[name].next.fire(self.obj, self, event);
 					} else {
-						return self.next.init(self.obj, self);
+						return this.init(event);
 					}
 				},
 			},
@@ -243,27 +243,27 @@ function Step (obj, name, parent) {
 
 		back : {
 			value : {
-				init : function (other) {
+				init : function (event) {
 					if (Serzone.action.always !== undefined && Serzone.action.always.back !== undefined) {
-						Serzone.action.always.back.init(self.obj, self);
+						Serzone.action.always.back.init(self.obj, self, event);
 					}
 
 					self.$flag1 = false;
 
-					return Serzone.action[name].back.init(self.obj, self);
+					return Serzone.action[name].back.init(self.obj, self, event);
 				},
 
-				fire : function (other) {
+				fire : function (event) {
 					if (self.$flag2) {
 						if (Serzone.action.always !== undefined && Serzone.action.always.back !== undefined) {
-							Serzone.action.always.back.fire(self.obj, self);
+							Serzone.action.always.back.fire(self.obj, self, event);
 						}
 
 						self.$flag2 = false;
 
-						return Serzone.action[name].back.fire(self.obj, self);
+						return Serzone.action[name].back.fire(self.obj, self, event);
 					} else {
-						return this.init(self.obj, self);
+						return this.init(event);
 					}
 				}
 			},
@@ -552,12 +552,12 @@ var Spike = {
 	$stack : [],
 	$end   : [],
 
-	refreshStack : function () {
+	refreshStack : function (event) {
 		var self = this;
 
 		this.$stack = (function rec (c) {
 			if (c.$type === "inherit") {
-				c.next.init();
+				c.next.init(event);
 				
 				var r = [c];
 				r = r.concat( c.children.reduce( (function (x, y) {
@@ -568,8 +568,8 @@ var Spike = {
 			} else {
 				return [ {
 					next : {
-						fire : function () {
-							var t = c.next.fire();
+						fire : function (event) {
+							var t = c.next.fire(event);
 
 							self.$stack = c.children.reduce(
 								(function (x, y) { return x.concat( rec(y) ); }), []
@@ -579,8 +579,8 @@ var Spike = {
 						},
 					},
 					back : {
-						fire :function () {
-							var t = c.back.fire();
+						fire :function (event) {
+							var t = c.back.fire(event);
 
 							self.$stack = self.$stack.filter(
 								function (e) {
@@ -598,30 +598,30 @@ var Spike = {
 		}(this.$slide));
 	},
 
-	next : function (i) {
+	next : function (e) {
 		var step = this.$stack.shift();
 		this.$end.unshift(step);
 
 		if (step !== undefined) {
-			var t = step.next.fire();
+			var t = step.next.fire(e);
 		}
 
 		if (this.$stack.length <= 0) {
 			if (this.$slide.nextSibling !== null) {
 				this.$slide = this.$slide.nextSibling;
 
-				this.refreshStack();
+				this.refreshStack(e);
 			}
 		}
 
 		return (step !== undefined ? t : Infinity);
 	},
 
-	back : function () {
+	back : function (e) {
 		if (this.$end.length > 0) {
 			var step = this.$end.shift();
 
-			var t = step.back.fire()
+			var t = step.back.fire(e)
 			this.$stack.unshift(step);
 
 			return t;
@@ -632,14 +632,14 @@ var Spike = {
 
 	start : function (slide) {
 		this.$slide = slide;
-		this.refreshStack();
+		this.refreshStack(undefined);
 
 		var n = (document.location.hash ? Number(document.location.hash.replace("#", "")) : 1);
 		var self = this;
 
 		for (var i = 0; i < n; i++) {
 			setTimeout(function () {
-				self.next(i);
+				self.next(undefined);
 			}, 1);
 		}
 		this.setEvent(n);
@@ -664,7 +664,7 @@ var Spike = {
 				return;
 			}
 
-			var t = self[type](i) || 0;
+			var t = self[type](e) || 0;
 			if (t === Infinity) { return; }
 
 			type === "next" ? i++ : i--;

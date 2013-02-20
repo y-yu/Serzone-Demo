@@ -124,7 +124,7 @@ Serzone.action = {};
 			type : "changeSlide",
 
 			next : {
-				init : function (slide, that) {
+				init : function (slide) {
 					if (slide.order === 0) {
 						changeSlide.initialize();
 					}
@@ -139,7 +139,7 @@ Serzone.action = {};
 					return 1000;
 				},
 
-				fire : function (slide, step) {
+				fire : function (slide) {
 					if (slide.children.length > 0) {
 						changeSlide.shiftTable();
 
