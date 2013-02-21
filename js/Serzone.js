@@ -650,9 +650,10 @@ var Spike = {
 
 		var input = [];
 		
-		var flag = true;
 		function countTimes (e) {
-			input.push(e);
+			if (self.$eventType.next.keycode.indexOf(e.keyCode) > -1 || self.$eventType.back.keycode.indexOf(e.keyCode) > -1) {
+				input.push(e);
+			}
 		}
 
 		function keyEvent (e) {
