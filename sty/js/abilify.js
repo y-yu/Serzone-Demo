@@ -36,7 +36,7 @@ Serzone.action = {};
 		},
 
 		addTable : function (slide, n) {
-			var body = $("<td></td>").append(slide.body).hide(1000);
+			var body = $("<td></td>").append(slide.body).hide("_default");
 
 			if (slide.previousNode === null || slide.depth <= slide.previousNode.depth) {
 				var tr = $("tbody:first > tr:last", this.currentTable);
@@ -53,7 +53,7 @@ Serzone.action = {};
 				this.currentTable = table;
 			}
 
-			body.show(1000);
+			body.show("_default");
 
 			return body;
 		},
@@ -77,11 +77,29 @@ Serzone.action = {};
 		}
 	};
 
+	var warp = true;
+	function toggleAnimation (e) {
+		if (e && e.shiftKey && !$.fx.off) {
+			$.fx.off = true;
+			$.fx.speeds._default = 0;
+
+			return false;
+		} else if (!warp) {
+			$.fx.off = false;
+			$.fx.speeds._default = 1000;
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	var always = (function () {
 		var n = Number(document.location.hash.replace("#", "")) || 0;
 
 		return function (i) {
 			if (i >= n && $.fx.off) {
+				warp = false;
 				$.fx.off = false;
 				$.fx.speeds._default = 1000;
 			}
@@ -124,7 +142,9 @@ Serzone.action = {};
 			type : "changeSlide",
 
 			next : {
-				init : function (slide, that) {
+				init : function (slide, step, event) {
+					var animation = toggleAnimation(event);
+
 					if (slide.order === 0) {
 						changeSlide.initialize();
 					}
@@ -134,35 +154,43 @@ Serzone.action = {};
 
 					changeSlide.transformCanvas(body.position().left, body.position().top);
 
+					toggleAnimation(event);
+
 					console.log("section next init");
 
-					return 1000;
+					return (animation ? 1000 : 0);
 				},
 
-				fire : function (slide, step) {
+				fire : function (slide) {
+					var animation = toggleAnimation(event);
+
 					if (slide.children.length > 0) {
 						changeSlide.shiftTable();
 
 						var pos = $(slide.body).position();
 						slide.children.forEach( function (e) {
-							$(e.body).hide(1000);
+							$(e.body).hide("_default");
 						});
 
 						changeSlide.transformCanvas(pos.left, pos.top);
 					}
 					
-					$(slide.body).find("summary").show(1000);
+					$(slide.body).find("summary").show("_default");
+
+					toggleAnimation(event);
 
 					console.log("section next fire");
 
-					return 1000;
+					return (animation ? 1000 : 0);
 				}
 			},
 
 			back : {
-				init : function (slide) {
+				init : function (slide, step, event) {
 					var body  = $(slide.body),
 						tr    = body.parent().parent();
+
+					var animation = toggleAnimation(event);
 
 					body.parent().remove();
 					
@@ -181,12 +209,16 @@ Serzone.action = {};
 
 					changeSlide.transformCanvas(pos.left, pos.top);
 
+					toggleAnimation(event);
+
 					console.log("section back init");
 
-					return 1000;
+					return (animation ? 1000 : 100);
 				},
 
-				fire : function (slide) {
+				fire : function (slide, step, event) {
+					var animation = toggleAnimation(event);
+
 					$(slide.body).find("summary").hide(0);
 
 					if (slide.children.length > 0) {
@@ -204,7 +236,9 @@ Serzone.action = {};
 
 					console.log("section back fire");
 
-					return 1000;
+					toggleAnimation(event);
+
+					return (animation ? 1000 : 100);
 				}
 			}
 		},
@@ -215,14 +249,14 @@ Serzone.action = {};
 				init : function (body) {
 					console.log("appear next init");
 					$(body).hide();
-
-					return 100;
 				},
-				fire : function (body) {
+				fire : function (body, step, event) {
+					var animation = toggleAnimation(event);
+					
 					console.log("appear next fire");
-					$(body).show(1000);
+					$(body).show("_default");
 
-					return 100;
+					return (animation ? 1000 : 0);
 				}
 			},
 			back : {
@@ -230,11 +264,13 @@ Serzone.action = {};
 					// none
 					console.log("appear fire init");
 				},
-				fire : function (body) {
-					$(body).hide(1000);
+				fire : function (body, step, event) {
+					var animation = toggleAnimation(event);
+
+					$(body).hide("_default");
 					console.log("appear fire fire");
 
-					return 100;
+					return (animation ? 1000 : 0);
 				}
 			}
 		},
@@ -246,11 +282,13 @@ Serzone.action = {};
 					//none
 					console.log("hide next init");
 				},
-				fire : function (body) {
-					console.log("hide next fire");
-					$(body).fadeOut(1000);
+				fire : function (body, step, event) {
+					var animation = toggleAnimation(event);
 
-					return 100;
+					console.log("hide next fire");
+					$(body).fadeOut("_default");
+
+					return (animation ? 1000 : 0);
 				}
 			},
 			back : {
@@ -258,11 +296,13 @@ Serzone.action = {};
 					// none
 					console.log("hide fire init");
 				},
-				fire : function (body) {
-					$(body).fadeIn(1000);
+				fire : function (body, step, event) {
+					var animation = toggleAnimation(event);
+
+					$(body).fadeIn("_default");
 					console.log("hide fire fire");
 
-					return 100;
+					return (animation ? 1000 : 0);
 				}
 			}
 		},
@@ -274,7 +314,7 @@ Serzone.action = {};
 					// none
 					console.log("mark next init");
 				},
-				fire : function (body) {
+				fire : function (body, step, event) {
 					var t = $(body).attr("t");
 
 					$(body).parent().find("m[t=" + t + "]").css({
@@ -283,7 +323,7 @@ Serzone.action = {};
 					});
 					console.log("mark next fire");
 
-					return 100;
+					return 0;
 				}
 			},
 			back : {
@@ -310,7 +350,7 @@ Serzone.action = {};
 			type : "inherit",
 			next : {
 				init : function (o) {
-					$(o).hide();
+					$(o).hide(0);
 					arrayify( o.querySelectorAll("pre code") ).filter(
 						function (e) {
 						return e.nodeType !== 3;
@@ -320,22 +360,27 @@ Serzone.action = {};
 	
 					console.log("src next init");
 				},
-				fire : function (o) {
-					$(o).show(1000);
+				fire : function (o, step, event) {
+					var animation = toggleAnimation(event);
+
+					$(o).show("_default");
 					console.log("src next fire");
 
-					return 1000;
+					return (animation ? 1000 : 0);
 				}
 			},
 			back : {
 				init : function () {
 					console.log("src back init");
 				},
-				fire : function (o) {
-					$(o).hide(1000);
+				fire : function (o, step, event) {
+					var animation = toggleAnimation(event);
+
+					$(o).hide("_default");
 
 					console.log("src back fire");
-					return 1000;
+
+					return (animation ? 1000 : 0);
 				}
 			}
 		},
