@@ -161,7 +161,7 @@ Serzone.action = {};
 					return (animation ? 1000 : 0);
 				},
 
-				fire : function (slide) {
+				fire : function (slide, step, event) {
 					var animation = toggleAnimation(event);
 
 					if (slide.children.length > 0) {
