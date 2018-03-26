@@ -11,7 +11,7 @@ HTML + JavaScript + CSSによる、[Prezi](http://prezi.com/)ライクな
 
 # デモ
 
-[こちら](http://yoshimurayuu.github.com/Serzone-Demo/)
+[こちら](https://y-yu.github.io/Serzone-Demo/)
 
 Chrome、Firefox、Safariで正常動作。
 
